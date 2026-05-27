@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="農作業記録">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>農作業記録アプリ</title>
+    <style>
+        :root {
+            --primary-color: #2d5a27;
+            --bg-color: #ffffff;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-sub: #7f8c8d;
+        }
+
+        body { 
+    font-family: -apple-system, sans-serif; 
+    background-color: #ffffff !important; 
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    overflow-y: auto;
+}
+
+        .phone-container {
+    width: 100%;
+    max-width: 450px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    overflow-y: auto;
+}
+
+        /* 画面切り替えの基本設定 */
+        .view { 
+            display: none; 
+            flex: 1; 
+            flex-direction: column; 
+            flex-direction: column; 
+            background-color: #ffffff !important; 
+        }
+        .view.active { display: flex; }
+        
+
+        
+
+        
+
+        /* 画面切り替えの基本設定 */
+        .view { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+        .view.active { display: flex; }
+
+        /* コンテナとフォーム内のスクロール設定 */
+       .container, #record-form { 
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    min-height: 0;
+}
+        /* ヘッダー */
+        .header { background: var(--card-bg); padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; flex-shrink: 0; }
+        .header h2 { margin: 0; font-size: 1.2em; font-weight: bold; color: var(--primary-color); }
+        .add-btn { background: var(--primary-color); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* カレンダー・カード等の既存デザイン */
+        .week-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: var(--card-bg); padding: 12px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 16px; text-align: center; }
+        .day-column { cursor: pointer; padding: 8px 4px; border-radius: 12px; transition: all 0.2s; }
+        .day-column.active { background: var(--primary-color); color: white; font-weight: bold; }
+        .day-name { font-size: 0.75em; color: var(--text-sub); margin-bottom: 6px; }
+        .day-num { font-size: 1.1em; font-weight: 600; }
+        .single-record-block { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.04); border-left: 5px solid var(--primary-color); }
+        .form-group { margin-bottom: 16px; }
+        input[type="date"], textarea, select { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; }
+        .submit-btn { background: var(--primary-color); color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .footer-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 8px 0; box-sizing: border-box; z-index: 100; }
+        .nav-item { background: none; border: none; color: var(--text-sub); cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 33%; }
+        .nav-item.active { color: var(--primary-color); font-weight: bold; }
+        /* 📅 週間カレンダー */
+        .week-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .day-column { cursor: pointer; padding: 8px 4px; border-radius: 12px; transition: all 0.2s; }
+        .day-column.active { background: var(--primary-color); color: white !important; font-weight: bold; }
+        .day-name { font-size: 0.75em; color: var(--text-sub); margin-bottom: 6px; }
+        .day-column.active .day-name { color: rgba(255,255,255,0.8); }
+        .day-num { font-size: 1.1em; font-weight: 600; position: relative; padding-bottom: 4px; }
+        .day-dot { width: 5px; height: 5px; background: var(--primary-color); border-radius: 50%; margin: 0 auto; position: absolute; bottom: -2px; left: 0; right: 0; display: none; }
+        .day-column.has-data .day-dot { display: block; }
+        .day-column.active .day-dot { background: white; }
+
+        /* 📋 本日の詳細エリア */
+        .today-detail-box { background: transparent; padding: 0; margin-bottom: 20px; }
+        .today-detail-box h3 { margin-top: 0; margin-bottom: 12px; font-size: 1em; color: var(--text-sub); padding-left: 4px; }
+        .detail-empty { background: var(--card-bg); color: var(--text-sub); text-align: center; padding: 30px 0; font-size: 0.9em; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+
+        /* 📦 独立した「カード風」デザイン */
+        .single-record-block { 
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+            position: relative;
+            border-left: 5px solid var(--primary-color);
+        }
+        .single-record-block:last-child { margin-bottom: 0; }
+
+        /* ⏰ カード右上の時間バッジ */
+        .time-badge {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: #e2ede2;
+            color: var(--primary-color);
+            font-size: 0.78em;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        /* 項目別並び */
+        .detail-row { display: flex; margin-bottom: 10px; font-size: 0.95em; line-height: 1.5; }
+        .detail-row:last-child { margin-bottom: 0; }
+        .detail-label { width: 75px; font-weight: bold; color: var(--primary-color); flex-shrink: 0; }
+        .detail-value { flex-grow: 1; color: var(--text-main); padding-right: 80px; }
+        .detail-photo { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; background: #e2e8f0; }
+
+        /* ✍️ 入力フォーム枠 */
+        .card { background: var(--card-bg); padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 0.9em; color: var(--primary-color); }
+        input[type="date"], textarea, select { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 1em; background: #f8fafc; color: var(--text-main); }
+        textarea { height: 90px; resize: none; }
+        
+        /* 時間選択の横並び */
+        .time-select-container { display: flex; align-items: center; gap: 10px; }
+        .time-select-container select { flex: 1; }
+        .time-separator { font-weight: bold; color: var(--text-sub); }
+
+        /* 複数選択ボックス */
+        .checkbox-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
+        .checkbox-group label { background: #f0f4f0; padding: 10px 4px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 0.88em; display: block; border: 1px solid transparent; transition: all 0.2s; }
+        .checkbox-group input { display: none; }
+        .checkbox-group label.checked { background: #e2ede2; border: 1px solid var(--primary-color); color: var(--primary-color); font-weight: bold; }
+        
+        /* その他入力欄 */
+        .other-work-wrap { display: none; margin-top: 10px; }
+        .other-work-wrap.active { display: block; }
+
+        .submit-btn { background: var(--primary-color); color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(45,90,39,0.2); }
+        .back-btn { background: #e2e8f0; color: var(--text-main); border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; margin-bottom: 16px; font-weight: bold; font-size: 0.9em; }
+
+        /* 下部タブ */
+        
+        .nav-item { background: none; border: none; color: var(--text-sub); font-size: 0.75em; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 33%; padding: 4px 0; }
+        .nav-item.active { color: var(--primary-color); font-weight: bold; }
+        .nav-icon { font-size: 1.5em; margin-bottom: 2px; }
+
+        /* 入力画面全体をflexboxにする */
+ /* 入力フォームのレイアウト修正 */
+
+
+
+
+
+/* 2. ビューの表示設定 */
+#form-view {
+    display: none;
+    flex-direction: column;
+    height: auto !important; /* 画面高さで固定しない */
+    min-height: 100%;
+    background: white;
+    overflow-y: auto;
+}
+#form-view.active { display: flex; }
+
+/* 3. フォーム本体 */
+#record-form {
+    flex: 1 0 auto;        /* 伸び縮みさせず、コンテンツの高さに合わせる */
+    overflow-y: visible;   /* 内部スクロールを消してページ全体で動かす */
+    padding: 16px;
+    margin: 0;
+}
+
+/* 4. ボタン部分：ここが一番重要 */
+.submit-footer {
+    padding: 20px 16px;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative; /* fixedからrelativeへ完全に変更 */
+    margin-top: 30px;   /* 入力フォームとの間に余白を確保 */
+    padding-bottom: 50px; /* スマホの底面対策 */
+}
+/* --- 強制的に背景を白くして重なりを防ぐ --- */
+
+/* 作業記録一覧とカレンダー画面の背景 */
+/* 全ての画面（ビュー）に対して、背景を強制的に白に固定する */
+.view {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow-y: auto;
+    background-color: #ffffff !important; /* 透明化を防止 */
+}
+
+/* フォーム内やカード内の背景も明示的に白くする */
+#record-form, .card, .today-detail-box, .single-record-block {
+    background-color: #ffffff !important;
+}
+
+/* 念のためコンテナ自体も白くしておく */
+
+
+/* カレンダーのグリッド設定：隙間をゼロにする */
+/* カレンダーのグリッド設定：セルを均一なサイズに固定 */
+#calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0 !important;
+    padding: 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* 曜日セルの調整（小さく固定） */
+#calendar-grid > div:nth-child(-n+7) {
+    min-height: 25px !important;
+    padding: 4px 0 !important;
+    background: #f8f9fa !important;
+    font-size: 0.75em;
+    font-weight: bold;
+    border-bottom: 2px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 日付セルの調整（24日のサイズに固定） */
+#calendar-grid > div {
+    min-height: 85px !important; /* 24日の大きさを基準に固定 */
+    max-height: 85px !important; /* これ以上伸びないようにする */
+    padding: 4px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    background: white;
+    cursor: pointer;
+    overflow: hidden; /* 中身が溢れたら隠す（崩れ防止） */
+}
+
+/* 今日だけの特別スタイル */
+#calendar-grid > div.today {
+    background: #fffde7 !important;
+}
+
+/* 数字の調整 */
+#calendar-grid > div > span:first-child {
+    font-size: 0.85em !important;
+    margin-bottom: 2px !important;
+    font-weight: bold;
+}
+
+/* カレンダー画面のスクロール修正 */
+#calendar-view {
+    height: auto !important;       /* 高さを自動調整に */
+    min-height: 100dvh;            /* 最低でも画面の高さ分は確保 */
+    padding-bottom: 80px;          /* 下部のナビゲーションと被らないよう余白 */
+    overflow-y: visible !important; /* 内部で止めず、ページ全体でスクロール */
+}
+
+/* 念のためコンテナも追従させる */
+
+/* カレンダーグリッドの表示崩れ防止 */
+#calendar-grid {
+    margin-bottom: 20px;
+}
+
+/* --- スマホでのスクロールを強制的に有効化する --- */
+body {
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+}
+
+
+
+/* 念のため、ビュー全体もスクロールを許容 */
+.view {
+    overflow-y: visible !important;
+}
+
+#record-form {
+    padding-bottom: 120px !important;
+}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="phone-container">
+    <div class="header">
+        <h2 id="header-title">作業記録</h2>
+        <button class="add-btn" id="header-add-btn" onclick="prepareNewRecord()">＋</button>
+    </div>
+
+    <div class="container">
+        
+       <div id="main-view" class="view active">
+    <div id="week-title" style="text-align: center; font-size: 1.1em; color: #333; margin-bottom: 10px; font-weight: bold;"></div>
+    
+    <div style="display: flex; align-items: center; gap: 5px;">
+        <button onclick="changeWeek(-1)" style="border:none; background:none; cursor:pointer; font-size:1.5em; padding:0 5px;">‹</button>
+        <div class="week-calendar" id="week-calendar" style="flex-grow:1; display:flex; gap:5px;"></div>
+        <button onclick="changeWeek(1)" style="border:none; background:none; cursor:pointer; font-size:1.5em; padding:0 5px;">›</button>
+    </div>
+    <div style="padding: 0 16px 80px;">
+    <h3 id="day-detail-title" style="margin: 12px 0 8px; font-size: 1em; color: #7f8c8d;"></h3>
+    <div id="day-detail-content"></div>
+</div>
+    </div>
+        
+
+      <div id="form-view" class="view">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 16px;">
+        <button type="button" onclick="switchView('main-view')" style="background: #e2e8f0; color: #333; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">← 戻る</button>
+        <button type="button" id="delete-btn" style="display:none; background:#e74c3c; color:white; border:none; padding:8px 16px; border-radius:8px; font-weight:bold; cursor:pointer;">削除</button>
+        <button type="button" class="submit-btn" id="submit-btn" onclick="saveData()" style="width: auto; padding: 8px 24px;">保存</button>
+    </div>
+    <form id="record-form">
+        <div class="form-group">
+            <label>作業日</label>
+            <input type="date" id="date">
+        </div>
+        <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="margin: 0;">圃場</label>
+                <button type="button" onclick="toggleFieldEdit()" style="background: none; border: 1px solid #2e7d32; color: #2e7d32; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; cursor: pointer; font-weight: bold;">選択肢を編集</button>
+            </div>
+            <div id="field-edit-area" style="display: none; background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px dashed #2e7d32;">
+                <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                    <input type="text" id="new-field-input" placeholder="新しい圃場名（例：A畑）" style="padding: 8px; flex-grow: 1; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.9em;">
+                    <button type="button" onclick="addFieldOption()" style="background: #2e7d32; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em;">追加</button>
+                </div>
+                <div id="field-delete-list" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+            </div>
+            <div class="checkbox-group" id="field-group">
+                <div id="dynamic-field-options" style="display: contents;"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="margin: 0;">作業内容</label>
+                <button type="button" onclick="toggleWorkEdit()" style="background: none; border: 1px solid #2e7d32; color: #2e7d32; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; cursor: pointer; font-weight: bold;">選択肢を編集</button>
+            </div>
+            <div id="work-edit-area" style="display: none; background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px dashed #2e7d32;">
+                <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                    <input type="text" id="new-work-input" placeholder="新しい作業名（例：草刈り）" style="padding: 8px; flex-grow: 1; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.9em;">
+                    <button type="button" onclick="addWorkOption()" style="background: #2e7d32; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em;">追加</button>
+                </div>
+                <div id="work-delete-list" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+            </div>
+            <div class="checkbox-group" id="work-group">
+                <div id="dynamic-work-options" style="display: contents;"></div>
+                <label id="other-work-trigger"><input type="checkbox" value="その他" id="other-checkbox" onchange="handleOtherCheckbox(this)">その他</label>
+            </div>
+            <div class="other-work-wrap" id="other-work-wrap">
+                <input type="text" id="other-work-input" placeholder="具体的な作業内容を入力してください">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>作業時間</label>
+            <div class="time-select-container">
+                <select id="start-time"></select>
+                <span class="time-separator">～</span>
+                <select id="end-time"></select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>メモ</label>
+            <textarea id="note" placeholder="補足や気づいたこと"></textarea>
+        </div>
+        <div class="form-group">
+    <label>写真</label>
+    <input type="file" id="photoInput" accept="image/*">
+
+    <button 
+        type="button"
+        onclick="removePhoto()"
+        style="
+            margin-top:8px;
+            background:#e74c3c;
+            color:white;
+            border:none;
+            padding:8px 12px;
+            border-radius:6px;
+            cursor:pointer;
+        ">
+        写真を削除
+    </button>
+</div>
+    </form>
+</div>
+
+
+        <div id="calendar-view" class="view card">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                <button class="back-btn" onclick="goToToday()" style="margin-bottom:0;">今日</button>
+            </div>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;">
+                <button onclick="changeMonth(-1)" style="border:none; background:none; cursor:pointer; font-size:1.2em;">◀</button>
+                <h3 id="calendar-title" style="margin: 0; min-width: 120px; text-align: center;">2026年5月</h3>
+                <button onclick="changeMonth(1)" style="border:none; background:none; cursor:pointer; font-size:1.2em;">▶</button>
+            </div>
+            <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center;"></div>
+        </div>
+
+       
+
+<div id="yield-view" class="view">
+
+    <div style="padding:16px; padding-bottom:120px;">
+
+        <h3>収量記録</h3>
+
+        <div class="form-group">
+            <label>日付</label>
+            <input type="date" id="yield-date">
+        </div>
+
+        <div class="form-group">
+            <label>圃場</label>
+
+            <select id="yield-field">
+                <option value="3S-①">3S-①</option>
+                <option value="3S-②">3S-②</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>A品（コンテナ数）</label>
+            <input type="number" id="yield-a">
+        </div>
+
+        <div class="form-group">
+            <label>はね出し（コンテナ数）</label>
+            <input type="number" id="yield-b">
+        </div>
+
+        <button class="submit-btn" onclick="saveYield()">
+            保存
+        </button>
+
+        <div
+            style="
+                height:300px;
+                margin-top:20px;
+                margin-bottom:20px;
+            ">
+
+            <canvas id="yieldChart"></canvas>
+
+        </div>
+
+        <div id="yield-list" style="margin-top:20px;"></div>
+
+    </div>
+
+</div>
+        <div id="memo-view" class="view" style="background: white; overflow: hidden;">
+    <div style="display: flex; justify-content: flex-end; padding: 2px 16px;">
+        <button id="toggle-memo-btn" onclick="toggleMemoForm()" style="background: var(--primary-color); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;">＋</button>
+    </div>
+    <div id="memo-list-container" style="padding: 0 16px;"></div>
+    <div id="memo-form" style="display: none; padding: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <button type="button" onclick="resetForm()" style="background: #e2e8f0; color: #333; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">← 戻る</button>
+        <button type="button" class="submit-btn" onclick="saveMemo()" style="width: auto; padding: 8px 24px;">保存</button>
+    </div>
+    <textarea id="memo-title" placeholder="題名" style="width: 100%; padding: 12px; border: none; border-bottom: 2px solid #e2e8f0; box-sizing: border-box; font-size: 1.1em; font-weight: bold; resize: none; outline: none; background: white;"></textarea>
+    <textarea id="memo-content" style="width: 100%; height: 60vh; padding: 12px; border: none; box-sizing: border-box; font-size: 1em; resize: none; outline: none; background: white;" placeholder="内容を入力..."></textarea>
+</div>
+</div>
+    
+
+        
+</div>
+<div class="footer-nav">
+    <button class="nav-item" id="nav-yield" onclick="switchTab('yield-view', 'nav-yield')">
+    <span class="nav-icon">📦</span>
+    <span>収量</span>
+</button>
+            <button class="nav-item active" id="nav-main" onclick="switchTab('main-view', 'nav-main')">
+                <span class="nav-icon">📋</span><span>作業記録</span>
+            </button>
+            <button class="nav-item" id="nav-cal" onclick="switchTab('calendar-view', 'nav-cal')">
+                <span class="nav-icon">📅</span><span>カレンダー</span>
+            </button>
+            <button class="nav-item" id="nav-memo" onclick="switchTab('memo-view', 'nav-memo')">
+                <span class="nav-icon">📝</span><span>メモ帳</span>
+            </button>
+        </div>
+
+<script>
+    let photoBase64 = "";
+    let selectedDateStr = "";
+    let currentMonth = new Date();
+
+function changeMonth(offset) {
+    currentMonth = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth() + offset,
+        1
+    );
+    buildFullCalendar();
+}
+
+    function goToToday() {
+        currentMonth = new Date();
+        buildFullCalendar();
+    }
+
+    function removePhoto() {
+    photoBase64 = "";
+    document.getElementById('photoInput').value = "";
+    alert("写真を削除しました");
+}
+
+    function handleOtherCheckbox(cb) {
+        cb.parentElement.classList.toggle('checked', cb.checked);
+        const wrap = document.getElementById('other-work-wrap');
+        if (cb.checked) {
+            wrap.classList.add('active');
+        } else {
+            wrap.classList.remove('active');
+            document.getElementById('other-work-input').value = "";
+        }
+    }
+
+    document.getElementById('photoInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 250; 
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * (MAX_WIDTH / img.width);
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                photoBase64 = canvas.toDataURL('image/jpeg', 0.3 );
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function switchView(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        
+        const title = document.getElementById('header-title');
+        const addBtn = document.getElementById('header-add-btn');
+        
+        if (id === 'form-view') {
+            title.innerText = "記録を入力";
+            addBtn.style.display = "none";
+        } else if (id === 'calendar-view') {
+            title.innerText = "カレンダー";
+            addBtn.style.display = "none";
+        } else if (id === 'memo-view') {
+            title.innerText = "メモ帳";
+            addBtn.style.display = "none";
+        } else {
+            title.innerText = "作業記録";
+            addBtn.style.display = "flex";
+        }
+    }
+
+    function switchTab(viewId, tabId) {
+        switchView(viewId);
+        document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if(viewId === 'calendar-view') buildFullCalendar();
+    }
+
+    function generateTimeOptions() {
+        const startSelect = document.getElementById('start-time');
+        const endSelect = document.getElementById('end-time');
+        startSelect.innerHTML = ""; endSelect.innerHTML = "";
+        for (let h = 0; h < 24; h++) {
+            const timeStr = String(h).padStart(2, '0') + ':00';
+            const optStart = document.createElement('option');
+            optStart.value = timeStr; optStart.innerText = timeStr;
+            startSelect.appendChild(optStart);
+            const optEnd = document.createElement('option');
+            optEnd.value = timeStr; optEnd.innerText = timeStr;
+            endSelect.appendChild(optEnd);
+        }
+        startSelect.value = "08:00"; endSelect.value = "17:00";
+    }
+
+    window.onload = function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+        selectedDateStr = today;
+        generateTimeOptions();
+        buildWeekCalendar();
+        showDayDetail(selectedDateStr);
+        renderMemos();
+        renderYields();
+        renderFieldCheckboxes();
+        renderWorkCheckboxes();
+    };
+
+    let baseDate = new Date();
+
+    // 週カレンダーの描画（デザイン付き）
+function buildWeekCalendar() {
+    const cal = document.getElementById('week-calendar');
+    cal.innerHTML = "";
+    const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+    const records = getStorageRecords();
+
+    // ★修正の肝：baseDateを一度「その週の日曜日」に変換する
+    // getDay() は 0(日)〜6(土) なので、これを引くことで確実にその週の日曜日になります
+    const startOfWeek = new Date(baseDate);
+    startOfWeek.setDate(baseDate.getDate() - baseDate.getDay());
+
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(startOfWeek);
+        d.setDate(startOfWeek.getDate() + i);
+        
+        const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        
+        const isSelected = (dateStr === selectedDateStr);
+        const hasData = records.some(r => r.date === dateStr);
+        
+        const style = isSelected 
+            ? "background: #e2ede2; border: 2px solid #2d5a27; color: #2d5a27; font-weight: bold;" 
+            : "background: white; border: 1px solid #ddd; color: #333;";
+            
+        cal.innerHTML += `
+            <div onclick="jumpToDate('${dateStr}')" 
+                 style="flex: 1; text-align: center; padding: 5px 0; border-radius: 8px; cursor: pointer; ${style}">
+                <div style="font-size: 0.7em;">${dayNames[i]}</div>
+                <div style="font-size: 1.1em;">${d.getDate()}</div>
+                ${hasData ? '<div style="color: #2d5a27; font-size: 8px; line-height: 1;">●</div>' : '<div style="height: 10px;"></div>'}
+            </div>`;
+    }
+    
+    // タイトルを「表示されている週の真ん中の月」に合わせる
+    const midDate = new Date(startOfWeek);
+    midDate.setDate(midDate.getDate() + 3);
+    document.getElementById('week-title').innerText = `${midDate.getFullYear()}年${midDate.getMonth() + 1}月`;
+}
+
+    function changeWeek(offset) {
+    // 基準日を7日ずらす
+    baseDate.setDate(baseDate.getDate() + (offset * 7));
+    buildWeekCalendar();
+}
+    function selectCalendarDate(dateStr) {
+        selectedDateStr = dateStr;
+        buildWeekCalendar();
+        showDayDetail(dateStr);
+    }
+
+    function getStorageRecords() {
+        const raw = localStorage.getItem('farm_records');
+        return raw ? JSON.parse(raw) : [];
+    }
+
+    function showDayDetail(dateStr) {
+        const records = getStorageRecords();
+        const contentEl = document.getElementById('day-detail-content');
+        const dayDatas = records.filter(r => r.date === dateStr);
+        
+        if(dayDatas.length === 0) {
+            contentEl.innerHTML = `<div class="detail-empty">🌱 この日の作業記録はありません</div>`;
+            return;
+        }
+        
+        let combinedHtml = "";
+        dayDatas.forEach(dayData => {
+            const allRecords = getStorageRecords();
+            const index = allRecords.findIndex(r => r.id === dayData.id);
+            
+            let imgHtml = dayData.photo ? `<img src="${dayData.photo}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #e2e8f0;">` : `<div style="width: 70px; height: 70px; flex-shrink: 0;"></div>`;
+            let noteHtml = "";
+            if (dayData.note && dayData.note.trim() !== "" && dayData.note.trim() !== "なし") {
+                noteHtml = `<div class="detail-row"><div class="detail-label">メモ</div><div class="detail-value" style="white-space:pre-wrap;">${dayData.note}</div></div>`;
+            }
+            
+            combinedHtml += `
+                <div class="single-record-block" onclick="editRecord(${index})" style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+                    ${imgHtml}
+                    <div class="info-box" style="flex-grow: 1; min-width: 0;">
+                        <div class="time-badge">⏰ ${dayData.time || "未入力"}</div>
+                        <div class="detail-row"><div class="detail-label">圃場</div><div class="detail-value">${dayData.field}</div></div>
+                        <div class="detail-row"><div class="detail-label">作業内容</div><div class="detail-value">${dayData.work}</div></div>
+                        ${noteHtml}
+                </div>
+            </div>`;
+    });
+    contentEl.innerHTML = combinedHtml;
+}
+
+   function buildFullCalendar() {
+    const grid = document.getElementById('calendar-grid');
+    const title = document.getElementById('calendar-title');
+    grid.innerHTML = ""; // 画面を一度クリア
+    
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    const workColors = {
+        "収穫": { bg: "#e2ede2", text: "#2d5a27" },
+        "定植": { bg: "#fce5cd", text: "#b45f06" },
+        "消毒": { bg: "#f4cccc", text: "#990000" },
+        "誘引": { bg: "#cfe2f3", text: "#1c4587" },
+        "水やり": { bg: "#d9eaf7", text: "#0b5394" },
+        "畑準備": { bg: "#eeeeee", text: "#444444" }
+    };
+
+    title.innerText = `${currentMonth.getFullYear()}年${currentMonth.getMonth() + 1}月`;
+    
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+    const records = getStorageRecords();
+
+    // 曜日行
+    ['日','月','火','水','木','金','土'].forEach(day => {
+        grid.innerHTML += `<div style="font-weight:bold; padding: 10px 0; color: #555;">${day}</div>`;
+    });
+
+    // 空セル
+    for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+
+    // 日付セル
+    for (let d = 1; d <= lastDate; d++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const dayRecords = records.filter(r => r.date === dateStr);
+        const hasData = dayRecords.length > 0;
+        const isToday = (dateStr === todayStr);
+        const todayStyle = isToday ? "border: 2px solid #2e7d32; background: #fffde7;" : "";
+        
+        let workHtml = "";
+        dayRecords.forEach(r => {
+            const works = r.work.split(', ');
+            works.forEach(w => {
+                const style = workColors[w] || { bg: "#eeeeee", text: "#444444" };
+                workHtml += `<div style="font-size: 0.5em; background: ${style.bg}; color: ${style.text}; font-weight: bold; border-radius: 4px; padding: 1px 2px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${w}</div>`;
+            });
+        });
+        
+        const cellStyle = hasData ? "background: #f9f9f9; border: 1px solid #ddd;" : "background: white; border: 1px solid #eee;";
+            
+        grid.innerHTML += `
+            <div style="padding: 4px; border-radius: 8px; cursor: pointer; ${cellStyle} ${todayStyle} min-height: 50px; display: flex; flex-direction: column;" 
+                 onclick="jumpToDate('${dateStr}')">
+                <span style="font-size: 0.85em; font-weight: bold; margin-bottom: 2px; ${isToday ? 'color: #2e7d32;' : ''}">${d}</span>
+                ${workHtml}
+            </div>`;
+    }
+}
+
+ function jumpToDate(dateStr) {
+    // 1. 記録詳細画面へ移動
+    switchTab('main-view', 'nav-main');
+    
+    // 2. 日付をセット（グローバル変数とinputの両方を同期）
+    selectedDateStr = dateStr;
+    const dateInput = document.getElementById('date');
+    if (dateInput) dateInput.value = dateStr;
+    
+    // 3. 【最重要】基準日の再計算
+    // ループ内で「i=-3」から表示を始めるため、タップした日を「3日足した位置(i=0)」にするには、
+    // 基準日（baseDate）を「タップした日の3日前」に設定する必要があります。
+    const [y, m, d] = dateStr.split('-').map(Number);
+    baseDate = new Date(y, m - 1, d);
+    
+    // 4. 週カレンダーを再描画（これでタップした日が中央に来る）
+    buildWeekCalendar(); 
+    
+    // 5. 詳細を表示
+    showDayDetail(dateStr);
+}
+   function saveData() {
+        const date = document.getElementById('date').value;
+        if(!date) { alert("日付を選択してください"); return; }
+        
+        const fieldsStr = Array.from(document.querySelectorAll('#field-group input:checked')).map(cb => cb.value).join(", ");
+        
+        let selectedWorks = Array.from(document.querySelectorAll('#work-group input:checked')).map(cb => cb.value).filter(val => val !== "その他");
+        const otherVal = document.getElementById('other-work-input').value.trim();
+        if (document.getElementById('other-checkbox').checked && otherVal !== "") {
+            selectedWorks.push(otherVal);
+        }
+        const worksStr = selectedWorks.join(", ");
+        const start = document.getElementById('start-time').value;
+        const end = document.getElementById('end-time').value;
+        const timeStr = `${start}～${end}`;
+        const note = document.getElementById('note').value;
+        const newRecord = { id: Date.now(),date, field: fieldsStr || "未指定", work: worksStr || "未指定", time: timeStr, note, photo: photoBase64 };
+
+        const records = getStorageRecords();
+        records.push(newRecord);
+        localStorage.setItem('farm_records', JSON.stringify(records));
+        
+        document.getElementById('record-form').reset();
+        document.querySelectorAll('.checkbox-group label').forEach(l => l.classList.remove('checked'));
+        document.getElementById('other-work-wrap').classList.remove('active');
+        photoBase64 = "";
+        document.getElementById('start-time').value = "08:00";
+        document.getElementById('end-time').value = "17:00";
+        
+        alert("保存しました！");
+        selectedDateStr = date;
+        buildWeekCalendar();
+        showDayDetail(selectedDateStr);
+        switchView('main-view');
+    }
+
+    // --- メモ帳関連 ---
+    let editingIndex = -1;
+
+    function renderMemos() {
+        const container = document.getElementById('memo-list-container');
+        const memos = JSON.parse(localStorage.getItem('farm_memos') || "[]");
+        
+        container.innerHTML = memos.map((m, index) => {
+            const firstLine = m.content.split('\n')[0];
+            return `
+                <div onclick="editMemo(${index})" style="background: white; border-bottom: 1px solid #eee; padding: 12px 0; cursor: pointer;">
+                    <div style="font-weight: bold; color: #2d5a27; font-size: 0.95em;">${m.title}</div>
+                    <div style="font-size: 0.85em; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px;">${firstLine}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function toggleMemoForm() {
+        editingIndex = -1;
+        document.getElementById('memo-title').value = "";
+        document.getElementById('memo-content').value = "";
+        
+        document.getElementById('memo-list-container').style.display = "none";
+        document.getElementById('toggle-memo-btn').style.display = "none";
+        document.getElementById('memo-form').style.display = "block";
+        
+        const delBtn = document.getElementById('delete-memo-btn');
+        if(delBtn) delBtn.remove();
+    }
+
+    function editMemo(index) {
+        const memos = JSON.parse(localStorage.getItem('farm_memos') || "[]");
+        const m = memos[index];
+        
+        editingIndex = index;
+        document.getElementById('memo-title').value = m.title;
+        document.getElementById('memo-content').value = m.content;
+        
+        document.getElementById('memo-list-container').style.display = "none";
+        document.getElementById('toggle-memo-btn').style.display = "none";
+        document.getElementById('memo-form').style.display = "block";
+        
+        if (!document.getElementById('delete-memo-btn')) {
+            const delBtn = document.createElement('button');
+            delBtn.id = 'delete-memo-btn';
+            delBtn.type = 'button';
+            delBtn.innerText = 'このメモを削除';
+            delBtn.style.cssText = 'background:#e74c3c; color:white; border:none; width:100%; padding:14px; border-radius:8px; margin-top:10px; font-weight:bold;';
+            delBtn.onclick = deleteMemo;
+            document.getElementById('memo-form').appendChild(delBtn);
+        }
+    }
+
+    function saveMemo() {
+        const title = document.getElementById('memo-title').value;
+        const content = document.getElementById('memo-content').value;
+        if(!title.trim()) return alert("題名を入力してください");
+
+        const memos = JSON.parse(localStorage.getItem('farm_memos') || "[]");
+        
+        if (editingIndex >= 0) {
+            memos[editingIndex] = { title, content, date: new Date().toLocaleDateString() };
+        } else {
+            memos.unshift({ title, content, date: new Date().toLocaleDateString() });
+        }
+        
+        localStorage.setItem('farm_memos', JSON.stringify(memos));
+        resetForm();
+        renderMemos();
+    }
+
+    function deleteMemo() {
+        if(!confirm("削除しますか？")) return;
+        const memos = JSON.parse(localStorage.getItem('farm_memos') || "[]");
+        memos.splice(editingIndex, 1);
+        localStorage.setItem('farm_memos', JSON.stringify(memos));
+        resetForm();
+        renderMemos();
+    }
+
+    function resetForm() {
+        editingIndex = -1;
+        document.getElementById('memo-title').value = "";
+        document.getElementById('memo-content').value = "";
+        
+        document.getElementById('memo-list-container').style.display = "block";
+        document.getElementById('toggle-memo-btn').style.display = "block";
+        document.getElementById('memo-form').style.display = "none";
+        
+        const delBtn = document.getElementById('delete-memo-btn');
+        if(delBtn) delBtn.remove();
+    }
+
+    // --- 作業記録の追加・編集機能群 ---
+    let editingRecordIndex = -1;
+
+    function prepareNewRecord() {
+        editingRecordIndex = -1; 
+        document.getElementById('record-form').reset();
+        document.getElementById('date').value = selectedDateStr || new Date().toISOString().split('T')[0];
+        
+        renderFieldCheckboxes();
+        renderWorkCheckboxes();
+        
+        photoBase64 = "";
+        document.getElementById('other-work-wrap').classList.remove('active');
+        document.getElementById('start-time').value = "08:00";
+        document.getElementById('end-time').value = "17:00";
+        
+        const btn = document.getElementById('submit-btn');
+        btn.innerText = "保存";
+        btn.onclick = saveData;
+        
+        document.getElementById('delete-btn').style.display = "none";
+        switchView('form-view');
+    }
+
+    function deleteRecord() {
+        if(!confirm("この記録を削除しますか？")) return;
+        const records = getStorageRecords();
+        records.splice(editingRecordIndex, 1);
+        localStorage.setItem('farm_records', JSON.stringify(records));
+        
+        switchView('main-view');
+        buildWeekCalendar();
+        showDayDetail(selectedDateStr);
+    }
+
+   function updateRecord() {
+    const records = getStorageRecords();
+    const date = document.getElementById('date').value;
+    
+    // 圃場の取得
+    const fieldsStr = Array.from(document.querySelectorAll('#field-group input:checked'))
+                           .map(cb => cb.value).join(", ");
+    
+    // 作業内容の取得
+    let selectedWorks = Array.from(document.querySelectorAll('#work-group input:checked'))
+                             .map(cb => cb.value)
+                             .filter(val => val !== "その他");
+    
+    const otherVal = document.getElementById('other-work-input').value.trim();
+    if (document.getElementById('other-checkbox').checked && otherVal !== "") {
+        selectedWorks.push(otherVal);
+    }
+    
+    records[editingRecordIndex] = { 
+        date, 
+        field: fieldsStr || "未指定", 
+        work: selectedWorks.join(", ") || "未指定", 
+        time: `${document.getElementById('start-time').value}～${document.getElementById('end-time').value}`, 
+        note: document.getElementById('note').value, 
+        photo: photoBase64 
+    };
+    
+    localStorage.setItem('farm_records', JSON.stringify(records));
+    alert("更新しました！");
+    
+    // フォームを閉じて再表示
+    switchView('main-view');
+    buildWeekCalendar();
+    showDayDetail(date);
+}
+
+    function editRecord(index) {
+        renderFieldCheckboxes();
+        renderWorkCheckboxes();
+
+        const records = getStorageRecords();
+        const r = records[index];
+        editingRecordIndex = index;
+        
+        document.getElementById('date').value = r.date;
+        document.getElementById('note').value = r.note;
+        photoBase64 = r.photo || "";
+        
+        document.querySelectorAll('#field-group input, #work-group input').forEach(cb => {
+            cb.checked = false;
+            cb.parentElement.classList.remove('checked');
+        });
+        document.getElementById('other-work-wrap').classList.remove('active');
+        document.getElementById('other-work-input').value = "";
+        
+        if (r.field) {
+            const fields = r.field.split(", ");
+            document.querySelectorAll('#field-group input').forEach(cb => {
+                if(fields.includes(cb.value)) {
+                    cb.checked = true;
+                    cb.parentElement.classList.add('checked');
+                }
+            });
+        }
+
+        const works = r.work.split(", ");
+        document.querySelectorAll('#work-group input').forEach(cb => {
+            if(cb.value !== "その他" && works.includes(cb.value)) {
+                cb.checked = true;
+                cb.parentElement.classList.add('checked');
+            }
+        });
+
+        const otherWorks = works.filter(w => !workOptions.includes(w) && w !== "未指定" && w !== "");
+        if (otherWorks.length > 0) {
+            const otherCb = document.getElementById('other-checkbox');
+            otherCb.checked = true;
+            otherCb.parentElement.classList.add('checked');
+            document.getElementById('other-work-wrap').classList.add('active');
+            document.getElementById('other-work-input').value = otherWorks.join(", ");
+        }
+        
+        if (r.time && r.time.includes("～")) {
+            const times = r.time.split("～");
+            if (times[0]) document.getElementById('start-time').value = times[0];
+            if (times[1]) document.getElementById('end-time').value = times[1];
+        }
+
+        const btn = document.getElementById('submit-btn');
+        btn.innerText = "更新する";
+        btn.onclick = updateRecord;
+        
+        document.getElementById('delete-btn').style.display = "block";
+        document.getElementById('delete-btn').onclick = deleteRecord;
+        
+        switchView('form-view');
+    }
+
+    // --- 圃場のカスタマイズ機能 ---
+    const defaultFields = ["3S", "山腰"];
+    let fieldOptions = JSON.parse(localStorage.getItem('farmFieldOptions')) || defaultFields;
+
+    function renderFieldCheckboxes() {
+        const dynamicContainer = document.getElementById('dynamic-field-options');
+        const deleteList = document.getElementById('field-delete-list');
+        if (!dynamicContainer || !deleteList) return;
+
+        let checkboxHtml = '';
+        fieldOptions.forEach(field => {
+            checkboxHtml += `
+                <label>
+                    <input type="checkbox" value="${field}" onchange="this.parentElement.classList.toggle('checked', this.checked)">
+                    ${field}
+                </label>`;
+        });
+        dynamicContainer.innerHTML = checkboxHtml;
+
+        let deleteHtml = '';
+        fieldOptions.forEach((field, index) => {
+            deleteHtml += `
+                <span style="background: #e2e8f0; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; display: inline-flex; align-items: center; gap: 6px;">
+                    ${field}
+                    <span onclick="deleteFieldOption(${index})" style="color: #ef4444; cursor: pointer; font-weight: bold; font-size: 1.1em;">×</span>
+                </span>`;
+        });
+        deleteList.innerHTML = deleteHtml;
+    }
+
+    function toggleFieldEdit() {
+        const area = document.getElementById('field-edit-area');
+        if (area) area.style.display = area.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function addFieldOption() {
+        const input = document.getElementById('new-field-input');
+        const value = input.value.trim();
+        if (!value) return;
+        if (fieldOptions.includes(value)) {
+            alert("その圃場は既に登録されています。");
+            return;
+        }
+        fieldOptions.push(value);
+        localStorage.setItem('farmFieldOptions', JSON.stringify(fieldOptions));
+        input.value = '';
+        renderFieldCheckboxes();
+    }
+
+    function deleteFieldOption(index) {
+        if (confirm(`「${fieldOptions[index]}」を選択肢から削除しますか？\n※過去の記録データは消えません。`)) {
+            fieldOptions.splice(index, 1);
+            localStorage.setItem('farmFieldOptions', JSON.stringify(fieldOptions));
+            renderFieldCheckboxes();
+        }
+    }
+
+    // --- 作業内容のカスタマイズ機能 ---
+    const defaultWorks = ["収穫", "芽かき", "誘引", "消毒", "水やり", "畑準備"];
+    let workOptions = JSON.parse(localStorage.getItem('farmWorkOptions')) || defaultWorks;
+
+    function renderWorkCheckboxes() {
+        const dynamicContainer = document.getElementById('dynamic-work-options');
+        const deleteList = document.getElementById('work-delete-list');
+        if (!dynamicContainer || !deleteList) return;
+
+        let checkboxHtml = '';
+        workOptions.forEach(work => {
+            checkboxHtml += `
+                <label>
+                    <input type="checkbox" value="${work}" onchange="this.parentElement.classList.toggle('checked', this.checked)">
+                    ${work}
+                </label>`;
+        });
+        dynamicContainer.innerHTML = checkboxHtml;
+
+        let deleteHtml = '';
+        workOptions.forEach((work, index) => {
+            deleteHtml += `
+                <span style="background: #e2e8f0; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; display: inline-flex; align-items: center; gap: 6px;">
+                    ${work}
+                    <span onclick="deleteWorkOption(${index})" style="color: #ef4444; cursor: pointer; font-weight: bold; font-size: 1.1em;">×</span>
+                </span>`;
+        });
+        deleteList.innerHTML = deleteHtml;
+    }
+
+    function toggleWorkEdit() {
+        const area = document.getElementById('work-edit-area');
+        if (area) area.style.display = area.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function addWorkOption() {
+        const input = document.getElementById('new-work-input');
+        const value = input.value.trim();
+        if (!value) return;
+        if (workOptions.includes(value) || value === "その他") {
+            alert("その作業内容は既に登録されているか、使用できない名前です。");
+            return;
+        }
+        workOptions.push(value);
+        localStorage.setItem('farmWorkOptions', JSON.stringify(workOptions));
+        input.value = '';
+        renderWorkCheckboxes();
+    }
+
+    function deleteWorkOption(index) {
+        if (confirm(`「${workOptions[index]}」を選択肢から削除しますか？\n※過去の記録データは消えません。`)) {
+            workOptions.splice(index, 1);
+            localStorage.setItem('farmWorkOptions', JSON.stringify(workOptions));
+            renderWorkCheckboxes();
+        }
+    }
+    function saveYield() {
+
+    const date = document.getElementById('yield-date').value;
+    const field = document.getElementById('yield-field').value;
+    const a = document.getElementById('yield-a').value;
+    const b = document.getElementById('yield-b').value;
+
+    if (!date) {
+        alert("日付を入力してください");
+        return;
+    }
+
+    const yields = JSON.parse(
+        localStorage.getItem('farm_yields') || "[]"
+    );
+     renderYieldChart(yields);
+
+     console.log("グラフ関数開始");
+    yields.push({
+        id: Date.now(),
+        date,
+        field,
+        a,
+        b
+    });
+
+    localStorage.setItem(
+        'farm_yields',
+        JSON.stringify(yields)
+    );
+
+    renderYields();
+
+    alert("保存しました");
+
+    document.getElementById('yield-a').value = "";
+    document.getElementById('yield-b').value = "";
+}
+
+function renderYields() {
+
+    const container =
+        document.getElementById('yield-list');
+
+    const chartCanvas =
+        document.getElementById('yieldChart');
+
+    if (!container || !chartCanvas) {
+        return;
+    }
+
+    const yields = JSON.parse(
+        localStorage.getItem('farm_yields') || "[]"
+    );
+
+    renderYieldChart(yields);
+
+    if (yields.length === 0) {
+
+        container.innerHTML =
+            "<p>まだ収量記録がありません</p>";
+
+        return;
+    }
+
+    container.innerHTML = yields.map(y => {
+
+        const total =
+            (Number(y.a) || 0) +
+            (Number(y.b) || 0);
+
+        return `
+
+            <div class="single-record-block">
+
+                <div>📅 ${y.date}</div>
+
+                <div>🏠 ${y.field}</div>
+
+                <div>
+                    A品：
+                    ${y.a || 0} コンテナ
+                </div>
+
+                <div>
+                    はね：
+                    ${y.b || 0} コンテナ
+                </div>
+
+                <div>
+                    合計：
+                    ${total} コンテナ
+                </div>
+
+            </div>
+
+        `;
+
+    }).join('');
+}
+let yieldChart;
+
+function renderYieldChart(yields) {
+
+    const dates = [...new Set(
+        yields.map(y => y.date)
+    )].sort((a, b) => new Date(a) - new Date(b));
+
+    const field1Data = dates.map(date => {
+
+        return yields
+            .filter(y =>
+                y.date === date &&
+                y.field === "3S-①"
+            )
+            .reduce((sum, y) =>
+                sum + (Number(y.a) || 0),
+            0);
+
+    });
+
+    const field2Data = dates.map(date => {
+
+        return yields
+            .filter(y =>
+                y.date === date &&
+                y.field === "3S-②"
+            )
+            .reduce((sum, y) =>
+                sum + (Number(y.a) || 0),
+            0);
+
+    });
+
+    const ctx =
+        document.getElementById('yieldChart')
+        .getContext('2d');
+
+    if (
+        yieldChart &&
+        typeof yieldChart.destroy === 'function'
+    ) {
+        yieldChart.destroy();
+    }
+
+    yieldChart = new Chart(ctx, {
+
+        type: 'line',
+
+        data: {
+
+            labels: dates,
+
+            datasets: [
+
+                {
+                    label: '3S-①',
+                    data: field1Data,
+                    tension: 0.3
+                },
+
+                {
+                    label: '3S-②',
+                    data: field2Data,
+                    tension: 0.3
+                }
+
+            ]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+
+    });
+
+}
+
+</script>
+</body>
+</html>
