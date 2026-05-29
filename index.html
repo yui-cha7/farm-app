@@ -713,6 +713,8 @@ function buildWeekCalendar() {
     baseDate.setDate(baseDate.getDate() + (offset * 7));
     buildWeekCalendar();
 }
+window.changeWeek = changeWeek;
+
     function selectCalendarDate(dateStr) {
         selectedDateStr = dateStr;
         buildWeekCalendar();
@@ -1146,6 +1148,7 @@ window.jumpToDate = jumpToDate;
         const area = document.getElementById('field-edit-area');
         if (area) area.style.display = area.style.display === 'none' ? 'block' : 'none';
     }
+    window.toggleFieldEdit = toggleFieldEdit;
 
     function addFieldOption() {
         const input = document.getElementById('new-field-input');
@@ -1160,6 +1163,7 @@ window.jumpToDate = jumpToDate;
         input.value = '';
         renderFieldCheckboxes();
     }
+    window.addFieldOption = addFieldOption;
 
     function deleteFieldOption(index) {
         if (confirm(`「${fieldOptions[index]}」を選択肢から削除しますか？\n※過去の記録データは消えません。`)) {
@@ -1203,6 +1207,7 @@ window.jumpToDate = jumpToDate;
         const area = document.getElementById('work-edit-area');
         if (area) area.style.display = area.style.display === 'none' ? 'block' : 'none';
     }
+    window.toggleWorkEdit = toggleWorkEdit;
 
     function addWorkOption() {
         const input = document.getElementById('new-work-input');
@@ -1217,6 +1222,7 @@ window.jumpToDate = jumpToDate;
         input.value = '';
         renderWorkCheckboxes();
     }
+    window.addWorkOption = addWorkOption;
 
     function deleteWorkOption(index) {
         if (confirm(`「${workOptions[index]}」を選択肢から削除しますか？\n※過去の記録データは消えません。`)) {
@@ -1225,6 +1231,8 @@ window.jumpToDate = jumpToDate;
             renderWorkCheckboxes();
         }
     }
+    window.deleteWorkOption = deleteWorkOption;
+    
     async function saveYield() {
 
     const date = document.getElementById('yield-date').value;
