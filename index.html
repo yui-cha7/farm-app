@@ -945,6 +945,8 @@ window.jumpToDate = jumpToDate;
         document.querySelectorAll('.checkbox-group label').forEach(l => l.classList.remove('checked'));
         document.getElementById('other-work-wrap').classList.remove('active');
         photoUrl = "";
+const previewImg2 = document.getElementById('photo-preview');
+if (previewImg2) previewImg2.style.display = 'none';
         document.getElementById('start-time').value = "08:00";
         document.getElementById('end-time').value = "17:00";
         
