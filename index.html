@@ -1199,10 +1199,10 @@ console.log("保存時のphotoUrl:", photoUrl);
         switchView('form-view');
 
          photoUrl = r.photo || "";
-previewImg = document.getElementById('photo-preview');
-if (previewImg) {
-    previewImg.src = photoUrl;
-    previewImg.style.display = photoUrl ? 'block' : 'none';
+const editPreviewImg = document.getElementById('photo-preview');
+if (editPreviewImg) {
+    editPreviewImg.src = photoUrl;
+    editPreviewImg.style.display = photoUrl ? 'block' : 'none';
 }
     }
     window.editRecord = editRecord;
