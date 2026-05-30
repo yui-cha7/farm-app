@@ -1133,12 +1133,7 @@ window.jumpToDate = jumpToDate;
         
         document.getElementById('date').value = r.date;
         document.getElementById('note').value = r.note;
-        photoUrl = r.photo || "";
-const previewImg = document.getElementById('photo-preview');
-if (previewImg) {
-    previewImg.src = photoUrl;
-    previewImg.style.display = photoUrl ? 'block' : 'none';
-}
+       
         
         document.querySelectorAll('#field-group input, #work-group input').forEach(cb => {
             cb.checked = false;
@@ -1188,6 +1183,13 @@ if (previewImg) {
         document.getElementById('delete-btn').onclick = deleteRecord;
         
         switchView('form-view');
+
+         photoUrl = r.photo || "";
+const previewImg = document.getElementById('photo-preview');
+if (previewImg) {
+    previewImg.src = photoUrl;
+    previewImg.style.display = photoUrl ? 'block' : 'none';
+}
     }
     window.editRecord = editRecord;
 
