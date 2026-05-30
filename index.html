@@ -662,39 +662,40 @@ if (previewImg) {
 
     
 });
-    function switchView(id) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        
-        if (id !== 'form-view') {
-    photoUrl = "";
-    const previewImg = document.getElementById('photo-preview');
-    if (previewImg) {
-        previewImg.src = "";
-        previewImg.style.display = 'none';
+   function switchView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    
+    if (id !== 'form-view') {
+        photoUrl = "";
+        const previewImg = document.getElementById('photo-preview');
+        if (previewImg) {
+            previewImg.src = "";
+            previewImg.style.display = 'none';
+        }
+    }
+
+    const title = document.getElementById('header-title');
+    const addBtn = document.getElementById('header-add-btn');
+    
+    if (id === 'form-view') {
+        title.innerText = "記録を入力";
+        addBtn.style.display = "none";
+    } else if (id === 'calendar-view') {
+        title.innerText = "カレンダー";
+        addBtn.style.display = "none";
+    } else if (id === 'memo-view') {
+        title.innerText = "メモ帳";
+        addBtn.style.display = "none";
+    } else if (id === 'yield-view') {
+        title.innerText = "収量記録";
+        addBtn.style.display = "none";
+    } else {
+        title.innerText = "作業記録";
+        addBtn.style.display = "flex";
     }
 }
-        const title = document.getElementById('header-title');
-        const addBtn = document.getElementById('header-add-btn');
-        
-        if (id === 'form-view') {
-            title.innerText = "記録を入力";
-            addBtn.style.display = "none";
-        } else if (id === 'calendar-view') {
-            title.innerText = "カレンダー";
-            addBtn.style.display = "none";
-        } else if (id === 'memo-view') {
-            title.innerText = "メモ帳";
-            addBtn.style.display = "none";
-        } else if (id === 'yield-view') {
-    title.innerText = "収量記録";
-    addBtn.style.display = "none";
-} else {
-    title.innerText = "作業記録";
-    addBtn.style.display = "flex";
-}
-    }
-    window.switchView = switchView;
+window.switchView = switchView;
 
     function switchTab(viewId, tabId) {
         switchView(viewId);
