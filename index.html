@@ -1071,6 +1071,10 @@ window.jumpToDate = jumpToDate;
         document.getElementById('start-time').value = "08:00";
         document.getElementById('end-time').value = "17:00";
         
+    
+const previewImg = document.getElementById('photo-preview');
+if (previewImg) previewImg.style.display = 'none';
+
         const btn = document.getElementById('submit-btn');
         btn.innerText = "保存";
         btn.onclick = saveData;
