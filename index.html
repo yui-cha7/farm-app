@@ -666,6 +666,14 @@ if (previewImg) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         
+        if (id !== 'form-view') {
+    photoUrl = "";
+    const previewImg = document.getElementById('photo-preview');
+    if (previewImg) {
+        previewImg.src = "";
+        previewImg.style.display = 'none';
+    }
+}
         const title = document.getElementById('header-title');
         const addBtn = document.getElementById('header-add-btn');
         
