@@ -590,7 +590,7 @@ const app = initializeApp(firebaseConfig);
 
 const db = getDatabase(app);
 
-    let photoBase64 = "";
+    let photoUrl　= "";
     let selectedDateStr = "";
     let currentMonth = new Date();
 
@@ -611,10 +611,13 @@ window.changeMonth = changeMonth;
     window.goToToday = goToToday;
 
     function removePhoto() {
-    photoBase64 = "";
+    photoUrl = "";
     document.getElementById('photoInput').value = "";
+    const previewImg = document.getElementById('photo-preview');
+    if (previewImg) previewImg.style.display = 'none';
     alert("写真を削除しました");
 }
+
 window.removePhoto = removePhoto;
 
     function handleOtherCheckbox(cb) {
@@ -629,29 +632,34 @@ window.removePhoto = removePhoto;
     }
     window.handleOtherCheckbox = handleOtherCheckbox;
 
-    document.getElementById('photoInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 250; 
-                canvas.width = MAX_WIDTH;
-                canvas.height = img.height * (MAX_WIDTH / img.width);
-                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                photoBase64 = canvas.toDataURL('image/jpeg', 0.3 );
-                const previewImg = document.getElementById('photo-preview');
-if (previewImg) {
-    previewImg.src = photoBase64;
-    previewImg.style.display = 'block';
-}
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
+   
+
+document.getElementById('photoInput').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'Root');
+    formData.append('cloud_name', 'dqzxpgrsn');
+
+    const res = await fetch('https://api.cloudinary.com/v1_1/dqzxpgrsn/image/upload', {
+        method: 'POST',
+        body: formData
     });
+    const data = await res.json();
+    photoUrl = data.secure_url;
+
+    const previewImg = document.getElementById('photo-preview');
+    if (previewImg) {
+        previewImg.src = photoUrl;
+        previewImg.style.display = 'block';
+    }
+});
+            img.src = event.target.result;
+        
+        reader.readAsDataURL(file);
+    
 
     function switchView(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -926,7 +934,7 @@ window.jumpToDate = jumpToDate;
         const end = document.getElementById('end-time').value;
         const timeStr = `${start}～${end}`;
         const note = document.getElementById('note').value;
-        const newRecord = { id: Date.now(),date, field: fieldsStr || "未指定", work: worksStr || "未指定", time: timeStr, note, photo: photoBase64 };
+        const newRecord = { id: Date.now(),date, field: fieldsStr || "未指定", work: worksStr || "未指定", time: timeStr, note, photo: photoUrl };
 
         const records = getStorageRecords();
         records.push(newRecord);
@@ -935,7 +943,7 @@ window.jumpToDate = jumpToDate;
         document.getElementById('record-form').reset();
         document.querySelectorAll('.checkbox-group label').forEach(l => l.classList.remove('checked'));
         document.getElementById('other-work-wrap').classList.remove('active');
-        photoBase64 = "";
+        photoUrl = "";
         document.getElementById('start-time').value = "08:00";
         document.getElementById('end-time').value = "17:00";
         
@@ -1057,7 +1065,7 @@ window.jumpToDate = jumpToDate;
         renderFieldCheckboxes();
         renderWorkCheckboxes();
         
-        photoBase64 = "";
+        photoUrl = "";
         document.getElementById('other-work-wrap').classList.remove('active');
         document.getElementById('start-time').value = "08:00";
         document.getElementById('end-time').value = "17:00";
@@ -1106,7 +1114,7 @@ window.jumpToDate = jumpToDate;
         work: selectedWorks.join(", ") || "未指定", 
         time: `${document.getElementById('start-time').value}～${document.getElementById('end-time').value}`, 
         note: document.getElementById('note').value, 
-        photo: photoBase64 
+        photo: photoUrl 
     };
     
     localStorage.setItem('farm_records', JSON.stringify(records));
@@ -1129,11 +1137,11 @@ window.jumpToDate = jumpToDate;
         
         document.getElementById('date').value = r.date;
         document.getElementById('note').value = r.note;
-        photoBase64 = r.photo || "";
-        const photoPreview = document.getElementById('photo-preview');
-if (photoPreview) {
-    photoPreview.src = photoBase64;
-    photoPreview.style.display = photoBase64 ? 'block' : 'none';
+        photoUrl = r.photo || "";
+const previewImg = document.getElementById('photo-preview');
+if (previewImg) {
+    previewImg.src = photoUrl;
+    previewImg.style.display = photoUrl ? 'block' : 'none';
 }
         
         document.querySelectorAll('#field-group input, #work-group input').forEach(cb => {
