@@ -400,6 +400,8 @@ body {
         <div class="form-group">
     <label>写真</label>
     <input type="file" id="photoInput" accept="image/*">
+    <img id="photo-preview" style="width:100%; border-radius:8px; margin-top:8px; display:none;">
+
 
     <button 
         type="button"
@@ -477,6 +479,10 @@ body {
             ">
 
             <canvas id="yieldChart"></canvas>
+            <div style="margin-top:8px; font-weight:bold; color:#2d5a27; font-size:0.95em;">週ごとの収量</div>
+<div style="height:300px; margin-top:8px; margin-bottom:20px;">
+    <canvas id="weeklyYieldChart"></canvas>
+</div>
 
         </div>
 
@@ -596,6 +602,7 @@ function changeMonth(offset) {
     );
     buildFullCalendar();
 }
+window.changeMonth = changeMonth;
 
     function goToToday() {
         currentMonth = new Date();
@@ -620,6 +627,7 @@ window.removePhoto = removePhoto;
             document.getElementById('other-work-input').value = "";
         }
     }
+    window.handleOtherCheckbox = handleOtherCheckbox;
 
     document.getElementById('photoInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -634,6 +642,11 @@ window.removePhoto = removePhoto;
                 canvas.height = img.height * (MAX_WIDTH / img.width);
                 canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
                 photoBase64 = canvas.toDataURL('image/jpeg', 0.3 );
+                const previewImg = document.getElementById('photo-preview');
+if (previewImg) {
+    previewImg.src = photoBase64;
+    previewImg.style.display = 'block';
+}
             };
             img.src = event.target.result;
         };
@@ -1117,6 +1130,11 @@ window.jumpToDate = jumpToDate;
         document.getElementById('date').value = r.date;
         document.getElementById('note').value = r.note;
         photoBase64 = r.photo || "";
+        const photoPreview = document.getElementById('photo-preview');
+if (photoPreview) {
+    photoPreview.src = photoBase64;
+    photoPreview.style.display = photoBase64 ? 'block' : 'none';
+}
         
         document.querySelectorAll('#field-group input, #work-group input').forEach(cb => {
             cb.checked = false;
@@ -1385,43 +1403,25 @@ function renderYields() {
         return;
     }
 
-    container.innerHTML = yields.map((y, index) => {
-        const total =
-            (Number(y.a) || 0) +
-            (Number(y.b) || 0);
-
+    const dates = [...new Set(yields.map(y => y.date))].sort((a, b) => new Date(b) - new Date(a));
+container.innerHTML = dates.map(date => {
+    const dayYields = yields.map((y, i) => ({...y, _index: i})).filter(y => y.date === date);
+    const rows = dayYields.map(y => {
+        const total = (Number(y.a) || 0) + (Number(y.b) || 0);
         return `
-
-            <div
-    class="single-record-block"
-    onclick="editYield(${index})"
-    style="cursor:pointer;"
->
-
-                <div>📅 ${y.date}</div>
-
-                <div>🏠 ${y.field}</div>
-
-                <div>
-                    A品：
-                    ${y.a || 0} コンテナ
+            <div onclick="editYield(${y._index})" style="cursor:pointer; padding:8px 0; border-bottom:1px solid #e2e8f0;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>🏠 ${y.field}</span>
+                    <span style="font-size:0.85em; color:#666;">A品：${y.a||0} / はね：${y.b||0} / 合計：${total}</span>
                 </div>
-
-                <div>
-                    はね：
-                    ${y.b || 0} コンテナ
-                </div>
-
-                <div>
-                    合計：
-                    ${total} コンテナ
-                </div>
-
-            </div>
-
-        `;
-
+            </div>`;
     }).join('');
+    return `
+        <div class="single-record-block" style="margin-bottom:12px;">
+            <div style="font-weight:bold; color:#2d5a27; margin-bottom:6px;">📅 ${date}</div>
+            ${rows}
+        </div>`;
+}).join('');
 }
 let yieldChart;
 
@@ -1481,13 +1481,13 @@ function renderYieldChart(yields) {
                 {
                     label: '3S-①',
                     data: field1Data,
-                    tension: 0.3
+                    tension: 0
                 },
 
                 {
                     label: '3S-②',
                     data: field2Data,
-                    tension: 0.3
+                    tension: 0
                 }
 
             ]
@@ -1499,7 +1499,45 @@ function renderYieldChart(yields) {
         }
 
     });
+renderWeeklyYieldChart(yields);
+}
+let weeklyYieldChart;
 
+function renderWeeklyYieldChart(yields) {
+    const getWeekLabel = (dateStr) => {
+        const d = new Date(dateStr);
+        const day = d.getDay();
+        const monday = new Date(d);
+        monday.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+        return `${monday.getMonth()+1}/${monday.getDate()}週`;
+    };
+
+    const weekMap = {};
+    yields.forEach(y => {
+        const week = getWeekLabel(y.date);
+        if (!weekMap[week]) weekMap[week] = { field1: 0, field2: 0 };
+        if (y.field === "3S-①") weekMap[week].field1 += Number(y.a) || 0;
+        if (y.field === "3S-②") weekMap[week].field2 += Number(y.a) || 0;
+    });
+
+    const weeks = Object.keys(weekMap).sort();
+    const ctx = document.getElementById('weeklyYieldChart').getContext('2d');
+
+    if (weeklyYieldChart && typeof weeklyYieldChart.destroy === 'function') {
+        weeklyYieldChart.destroy();
+    }
+
+    weeklyYieldChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: weeks,
+            datasets: [
+                { label: '3S-①', data: weeks.map(w => weekMap[w].field1), tension: 0 },
+                { label: '3S-②', data: weeks.map(w => weekMap[w].field2), tension: 0 }
+            ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
 }
 
 
