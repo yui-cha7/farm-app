@@ -1135,6 +1135,9 @@ if (previewImg) previewImg.style.display = 'none';
 }
 
     function editRecord(index) {
+         photoUrl = "";
+    const previewImg = document.getElementById('photo-preview');
+    if (previewImg) previewImg.style.display = 'none';
         renderFieldCheckboxes();
         renderWorkCheckboxes();
 
@@ -1196,7 +1199,7 @@ if (previewImg) previewImg.style.display = 'none';
         switchView('form-view');
 
          photoUrl = r.photo || "";
-const previewImg = document.getElementById('photo-preview');
+previewImg = document.getElementById('photo-preview');
 if (previewImg) {
     previewImg.src = photoUrl;
     previewImg.style.display = photoUrl ? 'block' : 'none';
