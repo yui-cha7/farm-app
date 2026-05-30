@@ -649,6 +649,7 @@ document.getElementById('photoInput').addEventListener('change', async function(
     });
     const data = await res.json();
     photoUrl = data.secure_url;
+    console.log("photoUrl:", photoUrl);
 
     const previewImg = document.getElementById('photo-preview');
     if (previewImg) {
