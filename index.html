@@ -1096,7 +1096,7 @@ if (previewImg) previewImg.style.display = 'none';
         buildWeekCalendar();
         showDayDetail(selectedDateStr);
     }
-
+console.log("保存時のphotoUrl:", photoUrl);
    function updateRecord() {
     const records = getStorageRecords();
     const date = document.getElementById('date').value;
