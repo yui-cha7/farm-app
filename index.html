@@ -442,35 +442,36 @@ body {
 
         
 
-        <div class="form-group">
-            <label>日付</label>
-            <input type="date" id="yield-date">
-        </div>
+ <div class="form-group">
+    <label>日付</label>
+    <input type="date" id="yield-date">
+</div>
 
-        <div class="form-group">
-            <label>圃場</label>
+<div style="background:#f9f9f9; border-radius:12px; padding:16px; margin-bottom:12px;">
+    <div style="font-weight:bold; color:#2d5a27; margin-bottom:12px;">🏠 3S-①</div>
+    <div class="form-group">
+        <label>A品（コンテナ数）</label>
+        <input type="number" id="yield-a1" style="width:100%; padding:16px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.8em; font-weight:bold; text-align:center;">
+    </div>
+    <div class="form-group">
+        <label>はね出し（コンテナ数）</label>
+        <input type="number" id="yield-b1" style="width:100%; padding:16px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.8em; font-weight:bold; text-align:center;">
+    </div>
+</div>
 
-            <select id="yield-field">
-                <option value="3S-①">3S-①</option>
-                <option value="3S-②">3S-②</option>
-            </select>
-        </div>
+<div style="background:#f9f9f9; border-radius:12px; padding:16px; margin-bottom:12px;">
+    <div style="font-weight:bold; color:#2d5a27; margin-bottom:12px;">🏠 3S-②</div>
+    <div class="form-group">
+        <label>A品（コンテナ数）</label>
+        <input type="number" id="yield-a2" style="width:100%; padding:16px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.8em; font-weight:bold; text-align:center;">
+    </div>
+    <div class="form-group">
+        <label>はね出し（コンテナ数）</label>
+        <input type="number" id="yield-b2" style="width:100%; padding:16px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.8em; font-weight:bold; text-align:center;">
+    </div>
+</div>
 
-        <div class="form-group">
-            <label>A品（コンテナ数）</label>
-            <input type="number" id="yield-a" style="width:100%; padding:16px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.8em; font-weight:bold; text-align:center;">
-            
-        </div>
-
-        <div class="form-group">
-            <label>はね出し（コンテナ数）</label>
-            <input type="number" id="yield-b" style="width:100%; padding:16px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.8em; font-weight:bold; text-align:center;">
-        </div>
-
-        <button class="submit-btn" onclick="saveYield()">
-            保存
-        </button>
-
+<button class="submit-btn" onclick="saveYield()">保存</button>
         <div
             style="
                 height:300px;
@@ -478,14 +479,13 @@ body {
                 margin-bottom:20px;
             ">
 
-            <canvas id="yieldChart"></canvas>
-            <div style="margin-top:8px; font-weight:bold; color:#2d5a27; font-size:0.95em;">週ごとの収量</div>
+           <div style="height:300px; margin-bottom:20px;">
+    <canvas id="yieldChart"></canvas>
+</div>
+<div style="font-weight:bold; color:#2d5a27; font-size:0.95em; margin-top:16px;">週ごとの収量</div>
 <div style="height:300px; margin-top:8px; margin-bottom:20px;">
     <canvas id="weeklyYieldChart"></canvas>
 </div>
-
-        </div>
-
         <div id="yield-list" style="margin-top:20px;"></div>
 
     </div>
@@ -1308,41 +1308,34 @@ if (photoPreview) {
     window.deleteWorkOption = deleteWorkOption;
 
     async function saveYield() {
-
     const date = document.getElementById('yield-date').value;
-    const field = document.getElementById('yield-field').value;
-    const a = document.getElementById('yield-a').value;
-    const b = document.getElementById('yield-b').value;
+    if (!date) { alert("日付を入力してください"); return; }
 
-    if (!date) {
-        alert("日付を入力してください");
-        return;
+    const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
+
+    const a1 = document.getElementById('yield-a1').value;
+    const b1 = document.getElementById('yield-b1').value;
+    if (a1 || b1) {
+        yields.push({ date, field: "3S-①", a: a1, b: b1 });
     }
 
-    const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
-yields.push({ date, field, a, b });
-localStorage.setItem('farm_yields', JSON.stringify(yields));
-saveToFirebase('farm_yields', JSON.parse(localStorage.getItem('farm_yields')));
-    renderYields();
+    const a2 = document.getElementById('yield-a2').value;
+    const b2 = document.getElementById('yield-b2').value;
+    if (a2 || b2) {
+        yields.push({ date, field: "3S-②", a: a2, b: b2 });
+    }
 
+    localStorage.setItem('farm_yields', JSON.stringify(yields));
+    saveToFirebase('farm_yields', yields);
+    renderYields();
     alert("保存しました");
 
-    document.getElementById('yield-a').value = "";
-    document.getElementById('yield-b').value = "";
+    document.getElementById('yield-a1').value = "";
+    document.getElementById('yield-b1').value = "";
+    document.getElementById('yield-a2').value = "";
+    document.getElementById('yield-b2').value = "";
 }
 window.saveYield = saveYield;
-
-function editYield(index) {
-    const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
-    const y = yields[index];
-    document.getElementById('modal-yield-index').value = index;
-    document.getElementById('modal-yield-date').value = y.date;
-    document.getElementById('modal-yield-field').value = y.field;
-    document.getElementById('modal-yield-a').value = y.a;
-    document.getElementById('modal-yield-b').value = y.b;
-    document.getElementById('yield-modal').style.display = 'flex';
-}
-window.editYield = editYield;
 
 function closeYieldModal() {
     document.getElementById('yield-modal').style.display = 'none';
@@ -1354,7 +1347,7 @@ function updateYieldRecord() {
     const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
     yields[index] = {
         date: document.getElementById('modal-yield-date').value,
-        field: document.getElementById('modal-yield-field').value,
+        
         a: document.getElementById('modal-yield-a').value,
         b: document.getElementById('modal-yield-b').value
     };
