@@ -1108,40 +1108,48 @@ if (previewImg) previewImg.style.display = 'none';
 console.log("保存時のphotoUrl:", photoUrl);
    function updateRecord() {
     const records = getStorageRecords();
+
     const date = document.getElementById('date').value;
-    
-    // 圃場の取得
-    const fieldsStr = Array.from(document.querySelectorAll('#field-group input:checked'))
-                           .map(cb => cb.value).join(", ");
-    
-    // 作業内容の取得
-    let selectedWorks = Array.from(document.querySelectorAll('#work-group input:checked'))
-                             .map(cb => cb.value)
-                             .filter(val => val !== "その他");
-    
+
+    const fieldsStr = Array.from(
+        document.querySelectorAll('#field-group input:checked')
+    ).map(cb => cb.value).join(", ");
+
+    let selectedWorks = Array.from(
+        document.querySelectorAll('#work-group input:checked')
+    )
+    .map(cb => cb.value)
+    .filter(val => val !== "その他");
+
     const otherVal = document.getElementById('other-work-input').value.trim();
-    if (document.getElementById('other-checkbox').checked && otherVal !== "") {
+
+    if (
+        document.getElementById('other-checkbox').checked &&
+        otherVal !== ""
+    ) {
         selectedWorks.push(otherVal);
     }
-    
-    records[editingRecordIndex] = { 
-        date, 
-        field: fieldsStr || "未指定", 
-        work: selectedWorks.join(", ") || "未指定", 
-        time: `${document.getElementById('start-time').value}～${document.getElementById('end-time').value}`, 
-        note: document.getElementById('note').value, 
-        photo: photoUrl 
+
+    records[editingRecordIndex] = {
+        ...records[editingRecordIndex],
+
+        date,
+        field: fieldsStr || "未指定",
+        work: selectedWorks.join(", ") || "未指定",
+        time: `${document.getElementById('start-time').value}～${document.getElementById('end-time').value}`,
+        note: document.getElementById('note').value,
+        photo: photoUrl
     };
-    
+
     localStorage.setItem('farm_records', JSON.stringify(records));
-    saveToFirebase('farm_records', getStorageRecords());
+    console.log(records);
+    saveToFirebase('farm_records', records);
+
     alert("更新しました！");
-    
-    // フォームを閉じて再表示
+
     switchView('main-view');
     buildWeekCalendar();
     showDayDetail(date);
-    loadAllFromFirebase();
 }
 
     function editRecord(index) {
