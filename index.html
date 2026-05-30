@@ -940,7 +940,6 @@ window.jumpToDate = jumpToDate;
         const records = getStorageRecords();
         records.push(newRecord);
         localStorage.setItem('farm_records', JSON.stringify(records));
-        await loadAllFromFirebase();
         saveToFirebase('farm_records', getStorageRecords());
         document.getElementById('record-form').reset();
         document.querySelectorAll('.checkbox-group label').forEach(l => l.classList.remove('checked'));
