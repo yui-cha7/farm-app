@@ -919,7 +919,7 @@ window.changeWeek = changeWeek;
 }
 window.jumpToDate = jumpToDate;
 
-   function saveData() {
+   async function saveData() {
         const date = document.getElementById('date').value;
         if(!date) { alert("日付を選択してください"); return; }
         
@@ -940,6 +940,7 @@ window.jumpToDate = jumpToDate;
         const records = getStorageRecords();
         records.push(newRecord);
         localStorage.setItem('farm_records', JSON.stringify(records));
+        await loadAllFromFirebase();
         saveToFirebase('farm_records', getStorageRecords());
         document.getElementById('record-form').reset();
         document.querySelectorAll('.checkbox-group label').forEach(l => l.classList.remove('checked'));
