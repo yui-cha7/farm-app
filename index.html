@@ -678,6 +678,7 @@ window.switchView = switchView;
         document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         if(viewId === 'calendar-view') buildFullCalendar();
+        if (viewId === 'memo-view') {renderMemos();resetForm();}
     }
 
 window.switchTab = switchTab;
