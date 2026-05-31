@@ -502,7 +502,7 @@ body {
         </div>
     </div>
 </div>
-        <div id="memo-view" class="view" style="background: white; overflow: hidden;">
+        <div id="memo-view" class="view" style="background: white; overflow-y: auto;">
     <div style="display: flex; justify-content: flex-end; padding: 2px 16px;">
         <button id="toggle-memo-btn" onclick="toggleMemoForm()" style="background: var(--primary-color); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;">＋</button>
     </div>
@@ -733,6 +733,7 @@ async function loadAllFromFirebase() {
     renderYields();
     renderMemos();
 }
+
 
 async function saveToFirebase(key, data) {
     await set(ref(db, key), data);
