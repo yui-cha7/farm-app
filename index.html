@@ -668,6 +668,9 @@ if (previewImg) {
     } else if (id === 'memo-view') {
         title.innerText = "メモ帳";
         addBtn.style.display = "none";
+        document.getElementById('toggle-memo-btn').style.display = 'flex';
+    document.getElementById('memo-list-container').style.display = 'block';
+    document.getElementById('memo-form').style.display = 'none';
     } else if (id === 'yield-view') {
         title.innerText = "収量記録";
         addBtn.style.display = "none";
