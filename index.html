@@ -120,17 +120,15 @@
 
         /* ⏰ カード右上の時間バッジ */
         .time-badge {
-            position: absolute;
-            top: 14px;
-            right: 14px;
-            background: #e2ede2;
-            color: var(--primary-color);
-            font-size: 0.78em;
-            font-weight: bold;
-            padding: 4px 10px;
-            border-radius: 20px;
-        }
-
+    background: #e2ede2;
+    color: var(--primary-color);
+    font-size: 0.78em;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 6px;
+}
         /* 項目別並び */
         .detail-row { display: flex; margin-bottom: 10px; font-size: 0.95em; line-height: 1.5; }
         .detail-row:last-child { margin-bottom: 0; }
@@ -840,17 +838,16 @@ window.changeWeek = changeWeek;
             if (dayData.note && dayData.note.trim() !== "" && dayData.note.trim() !== "なし") {
                 noteHtml = `<div class="detail-row" style="align-items:flex-start;"><div class="detail-label">メモ</div><div class="detail-value" style="white-space:pre-wrap; word-break:break-word; flex:1;min-width:0; max-width:calc(100% - 60px)">${dayData.note}</div></div>`;
             }
-            
             combinedHtml += `
-    <div class="single-record-block" onclick="editRecord(${index})" style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
-        ${imgHtml}
-        <div class="info-box" style="flex-grow: 1; min-width: 0; overflow: hidden;">
-            <div class="time-badge" style="margin-bottom:6px;">⏰ ${dayData.time || "未入力"}</div>
-            <div class="detail-row"><div class="detail-label">圃場</div><div class="detail-value">${dayData.field}</div></div>
-            <div class="detail-row"><div class="detail-label">作業内容</div><div class="detail-value">${dayData.work}</div></div>
-            ${noteHtml}
-        </div>
-    </div>`;
+                <div class="single-record-block" onclick="editRecord(${index})" style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+                    ${imgHtml}
+                    <div class="info-box" style="flex-grow: 1; min-width: 0;overflow: hidden;">
+                        <div class="time-badge">⏰ ${dayData.time || "未入力"}</div>
+                        <div class="detail-row"><div class="detail-label">圃場</div><div class="detail-value">${dayData.field}</div></div>
+                        <div class="detail-row"><div class="detail-label">作業内容</div><div class="detail-value">${dayData.work}</div></div>
+                        ${noteHtml}
+                </div>
+            </div>`;
     });
     contentEl.innerHTML = combinedHtml;
 }
