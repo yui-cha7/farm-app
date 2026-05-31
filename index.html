@@ -36,20 +36,7 @@
     overflow-y: auto;
 }
 
-        /* 画面切り替えの基本設定 */
-        .view { 
-            display: none; 
-            flex: 1; 
-            flex-direction: column; 
-            flex-direction: column; 
-            background-color: #ffffff !important; 
-        }
-        .view.active { display: flex; }
-        
-
-        
-
-        
+  
 
         /* 画面切り替えの基本設定 */
         .view { display: none; flex: 1; flex-direction: column; overflow: hidden; }
@@ -68,18 +55,14 @@
         .add-btn { background: var(--primary-color); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         /* カレンダー・カード等の既存デザイン */
-        .week-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: var(--card-bg); padding: 12px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 16px; text-align: center; }
-        .day-column { cursor: pointer; padding: 8px 4px; border-radius: 12px; transition: all 0.2s; }
-        .day-column.active { background: var(--primary-color); color: white; font-weight: bold; }
+        
         .day-name { font-size: 0.75em; color: var(--text-sub); margin-bottom: 6px; }
         .day-num { font-size: 1.1em; font-weight: 600; }
-        .single-record-block { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.04); border-left: 5px solid var(--primary-color); }
+        
         .form-group { margin-bottom: 16px; }
         input[type="date"], textarea, select { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; }
         .submit-btn { background: var(--primary-color); color: white; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .footer-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 8px 0; box-sizing: border-box; z-index: 100; }
-        .nav-item { background: none; border: none; color: var(--text-sub); cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 33%; }
-        .nav-item.active { color: var(--primary-color); font-weight: bold; }
+        
         /* 📅 週間カレンダー */
         .week-calendar {
             display: grid;
@@ -831,7 +814,7 @@ window.changeWeek = changeWeek;
     r.id === dayData.id || 
     (r.date === dayData.date && r.time === dayData.time && r.field === dayData.field)
 );
-            console.log("dayData.id:", dayData.id, "index:", index);
+           
 
             let imgHtml = dayData.photo ? `<img src="${dayData.photo}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #e2e8f0;">` : `<div style="width: 70px; height: 70px; flex-shrink: 0;"></div>`;
             let noteHtml = "";
