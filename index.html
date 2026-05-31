@@ -736,7 +736,14 @@ async function loadAllFromFirebase() {
     const snapshot = await get(ref(db));
     if (snapshot.exists()) {
         const data = snapshot.val();
-        if (data.farm_records) localStorage.setItem('farm_records', JSON.stringify(Object.values(data.farm_records)));
+        if (data.farm_records) {
+    const records = Object.values(data.farm_records).map((r, i) => {
+        if (!r.id) r.id = Date.now() + i;
+        return r;
+    });
+    localStorage.setItem('farm_records', JSON.stringify(records));
+    saveToFirebase('farm_records', records);
+}
         if (data.farm_yields) localStorage.setItem('farm_yields', JSON.stringify(Object.values(data.farm_yields)));
         if (data.farm_memos) localStorage.setItem('farm_memos', JSON.stringify(Object.values(data.farm_memos)));
     }
@@ -822,8 +829,12 @@ window.changeWeek = changeWeek;
         let combinedHtml = "";
         dayDatas.forEach(dayData => {
             const allRecords = getStorageRecords();
-            const index = allRecords.findIndex(r => r.id === dayData.id);
-            
+           const index = allRecords.findIndex(r => 
+    r.id === dayData.id || 
+    (r.date === dayData.date && r.time === dayData.time && r.field === dayData.field)
+);
+            console.log("dayData.id:", dayData.id, "index:", index);
+
             let imgHtml = dayData.photo ? `<img src="${dayData.photo}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #e2e8f0;">` : `<div style="width: 70px; height: 70px; flex-shrink: 0;"></div>`;
             let noteHtml = "";
             if (dayData.note && dayData.note.trim() !== "" && dayData.note.trim() !== "なし") {
