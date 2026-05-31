@@ -135,7 +135,7 @@
         .detail-row { display: flex; margin-bottom: 10px; font-size: 0.95em; line-height: 1.5; }
         .detail-row:last-child { margin-bottom: 0; }
         .detail-label { width: 75px; font-weight: bold; color: var(--primary-color); flex-shrink: 0; }
-        .detail-value { flex-grow: 1; color: var(--text-main); padding-right: 80px; }
+        .detail-value { flex-grow: 1; color: var(--text-main); min-width: 0; }
         .detail-photo { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; background: #e2e8f0; }
 
         /* ✍️ 入力フォーム枠 */
@@ -838,19 +838,19 @@ window.changeWeek = changeWeek;
             let imgHtml = dayData.photo ? `<img src="${dayData.photo}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: #e2e8f0;">` : `<div style="width: 70px; height: 70px; flex-shrink: 0;"></div>`;
             let noteHtml = "";
             if (dayData.note && dayData.note.trim() !== "" && dayData.note.trim() !== "なし") {
-                noteHtml = `<div class="detail-row"><div class="detail-label">メモ</div><div class="detail-value" style="white-space:pre-wrap;">${dayData.note}</div></div>`;
+                noteHtml = `<div class="detail-row" style="align-items:flex-start;"><div class="detail-label">メモ</div><div class="detail-value" style="white-space:pre-wrap; word-break:break-word; flex:1;min-width:0; max-width:calc(100% - 60px)">${dayData.note}</div></div>`;
             }
             
             combinedHtml += `
-                <div class="single-record-block" onclick="editRecord(${index})" style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
-                    ${imgHtml}
-                    <div class="info-box" style="flex-grow: 1; min-width: 0;">
-                        <div class="time-badge">⏰ ${dayData.time || "未入力"}</div>
-                        <div class="detail-row"><div class="detail-label">圃場</div><div class="detail-value">${dayData.field}</div></div>
-                        <div class="detail-row"><div class="detail-label">作業内容</div><div class="detail-value">${dayData.work}</div></div>
-                        ${noteHtml}
-                </div>
-            </div>`;
+    <div class="single-record-block" onclick="editRecord(${index})" style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+        ${imgHtml}
+        <div class="info-box" style="flex-grow: 1; min-width: 0; overflow: hidden;">
+            <div class="time-badge" style="margin-bottom:6px;">⏰ ${dayData.time || "未入力"}</div>
+            <div class="detail-row"><div class="detail-label">圃場</div><div class="detail-value">${dayData.field}</div></div>
+            <div class="detail-row"><div class="detail-label">作業内容</div><div class="detail-value">${dayData.work}</div></div>
+            ${noteHtml}
+        </div>
+    </div>`;
     });
     contentEl.innerHTML = combinedHtml;
 }
