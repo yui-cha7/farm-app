@@ -450,14 +450,33 @@ body {
 </div>
 
 <button class="submit-btn" onclick="saveYield()">保存</button>
-        <div
-            style="
-                height:300px;
-                margin-top:20px;
-                margin-bottom:20px;
-            ">
+        <!-- 月別コンテナ数サマリー -->
+        <div style="background:#f0f7f0; border-radius:12px; padding:14px; margin-top:20px; margin-bottom:16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                <button onclick="changeYieldMonth(-1)" style="border:none; background:none; cursor:pointer; font-size:1.3em; color:#2d5a27; padding:0 6px;">◀</button>
+                <span id="yield-month-title" style="font-weight:bold; color:#2d5a27; font-size:1em;"></span>
+                <button onclick="changeYieldMonth(1)" style="border:none; background:none; cursor:pointer; font-size:1.3em; color:#2d5a27; padding:0 6px;">▶</button>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1; background:white; border-radius:10px; padding:12px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                    <div style="font-size:0.78em; color:#7f8c8d; margin-bottom:4px;">3S-① A品</div>
+                    <div id="summary-f1-a" style="font-size:1.6em; font-weight:bold; color:#2d5a27;">-</div>
+                    <div style="font-size:0.72em; color:#aaa;">コンテナ</div>
+                </div>
+                <div style="flex:1; background:white; border-radius:10px; padding:12px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                    <div style="font-size:0.78em; color:#7f8c8d; margin-bottom:4px;">3S-② A品</div>
+                    <div id="summary-f2-a" style="font-size:1.6em; font-weight:bold; color:#2d5a27;">-</div>
+                    <div style="font-size:0.72em; color:#aaa;">コンテナ</div>
+                </div>
+                <div style="flex:1; background:#2d5a27; border-radius:10px; padding:12px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.1);">
+                    <div style="font-size:0.78em; color:rgba(255,255,255,0.8); margin-bottom:4px;">合計</div>
+                    <div id="summary-total" style="font-size:1.6em; font-weight:bold; color:white;">-</div>
+                    <div style="font-size:0.72em; color:rgba(255,255,255,0.7);">コンテナ</div>
+                </div>
+            </div>
+        </div>
 
-           <div style="height:300px; margin-bottom:20px;">
+        <div style="height:300px; margin-bottom:20px;">
     <canvas id="yieldChart"></canvas>
 </div>
 <div style="font-weight:bold; color:#2d5a27; font-size:0.95em; margin-top:16px;">週ごとの収量</div>
@@ -734,6 +753,8 @@ async function loadAllFromFirebase() {
 async function saveToFirebase(key, data) {
     await set(ref(db, key), data);
 }
+
+const SHEET_URL = "ここに自分のURLを貼り付け";
     let baseDate = new Date();
 
     // 週カレンダーの描画（デザイン付き）
@@ -818,12 +839,19 @@ window.changeWeek = changeWeek;
             if (dayData.note && dayData.note.trim() !== "" && dayData.note.trim() !== "なし") {
                 noteHtml = `<div class="detail-row" style="align-items:flex-start;"><div class="detail-label">メモ</div><div class="detail-value" style="white-space:pre-wrap; word-break:break-word; flex:1;min-width:0; max-width:calc(100% - 60px)">${dayData.note}</div></div>`;
             }
+            const is3sCard = dayData.field && dayData.field.toLowerCase().includes('3s');
+            const cardBorderStyle = is3sCard
+                ? 'border-left: 5px solid #ff6d00; background: #fff8f0 !important;'
+                : '';
+            const fieldLabel = is3sCard
+                ? `<span style="background:#fff3e0; color:#e65100; border-radius:4px; padding:1px 6px; font-weight:bold; font-size:0.92em;">🔶 ${dayData.field}</span>`
+                : dayData.field;
             combinedHtml += `
-                <div class="single-record-block" onclick="editRecord(${index})" style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+                <div class="single-record-block" onclick="editRecord(${index})" style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; ${cardBorderStyle}">
                     ${imgHtml}
                     <div class="info-box" style="flex-grow: 1; min-width: 0;overflow: hidden;">
                         <div class="time-badge">⏰ ${dayData.time || "未入力"}</div>
-                        <div class="detail-row"><div class="detail-label">圃場</div><div class="detail-value">${dayData.field}</div></div>
+                        <div class="detail-row"><div class="detail-label">圃場</div><div class="detail-value">${fieldLabel}</div></div>
                         <div class="detail-row"><div class="detail-label">作業内容</div><div class="detail-value">${dayData.work}</div></div>
                         ${noteHtml}
                 </div>
@@ -875,10 +903,16 @@ window.changeWeek = changeWeek;
         
         let workHtml = "";
         dayRecords.forEach(r => {
+            const is3s = r.field && r.field.toLowerCase().includes('3s');
             const works = r.work.split(', ');
             works.forEach(w => {
                 const style = workColors[w] || { bg: "#eeeeee", text: "#444444" };
-                workHtml += `<div style="font-size: 0.5em; background: ${style.bg}; color: ${style.text}; font-weight: bold; border-radius: 4px; padding: 1px 2px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${w}</div>`;
+                if (is3s) {
+                    // 圃場3s：作業内容の色分けはそのままに、左に太いオレンジボーダーで目立たせる
+                    workHtml += `<div style="font-size: 0.5em; background: #ffe0b2; color: #bf360c; font-weight: bold; border-radius: 4px; padding: 1px 2px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${w}</div>`;
+                } else {
+                    workHtml += `<div style="font-size: 0.5em; background: ${style.bg}; color: ${style.text}; font-weight: bold; border-radius: 4px; padding: 1px 2px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${w}</div>`;
+                }
             });
         });
         
@@ -947,6 +981,14 @@ if (previewImg2) previewImg2.style.display = 'none';
         document.getElementById('start-time').value = "08:00";
         document.getElementById('end-time').value = "17:00";
         
+        fetch(SHEET_URL, {
+    method: "POST",
+    body: JSON.stringify({
+        type: "record",
+        date, field: fieldsStr, work: worksStr,
+        time: timeStr, note
+    })
+});
         alert("保存しました！");
         selectedDateStr = date;
         buildWeekCalendar();
@@ -1354,6 +1396,21 @@ if (editPreviewImg) {
     localStorage.setItem('farm_yields', JSON.stringify(yields));
     saveToFirebase('farm_yields', yields);
     renderYields();
+
+    fetch(SHEET_URL, {
+    method: "POST",
+    body: JSON.stringify({
+        type: "yield",
+        date, field: "3S-①", a: a1, b: b1
+    })
+});
+fetch(SHEET_URL, {
+    method: "POST",
+    body: JSON.stringify({
+        type: "yield",
+        date, field: "3S-②", a: a2, b: b2
+    })
+});
     alert("保存しました");
 
     document.getElementById('yield-a1').value = "";
@@ -1396,6 +1453,35 @@ function deleteYieldRecord() {
 }
 window.deleteYieldRecord = deleteYieldRecord;
 
+// 月別サマリー用の基準月（初期値は今月）
+let yieldSummaryMonth = new Date();
+
+function changeYieldMonth(offset) {
+    yieldSummaryMonth = new Date(yieldSummaryMonth.getFullYear(), yieldSummaryMonth.getMonth() + offset, 1);
+    renderYieldSummary();
+}
+window.changeYieldMonth = changeYieldMonth;
+
+function renderYieldSummary() {
+    const y = yieldSummaryMonth.getFullYear();
+    const m = yieldSummaryMonth.getMonth();
+    const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
+
+    const monthYields = yields.filter(rec => {
+        const d = new Date(rec.date);
+        return d.getFullYear() === y && d.getMonth() === m;
+    });
+
+    const f1a = monthYields.filter(r => r.field === "3S-①").reduce((s, r) => s + (Number(r.a) || 0), 0);
+    const f2a = monthYields.filter(r => r.field === "3S-②").reduce((s, r) => s + (Number(r.a) || 0), 0);
+    const total = f1a + f2a;
+
+    document.getElementById('yield-month-title').textContent = `${y}年${m + 1}月 の収量`;
+    document.getElementById('summary-f1-a').textContent = f1a;
+    document.getElementById('summary-f2-a').textContent = f2a;
+    document.getElementById('summary-total').textContent = total;
+}
+
 function renderYields() {
 
     const container =
@@ -1413,6 +1499,7 @@ function renderYields() {
     );
 
     renderYieldChart(yields);
+    renderYieldSummary();
 
     if (yields.length === 0) {
 
