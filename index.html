@@ -753,8 +753,7 @@ async function loadAllFromFirebase() {
 async function saveToFirebase(key, data) {
     await set(ref(db, key), data);
 }
-
-const SHEET_URL = "ここに自分のURLを貼り付け";
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbxpW6Wzc9rbFqA2AVmWI55KhfHN0GEuKuxVpVsSrtP9DtzOXekGx9jisbGCUBS6XIb5/exec";
     let baseDate = new Date();
 
     // 週カレンダーの描画（デザイン付き）
@@ -982,13 +981,13 @@ if (previewImg2) previewImg2.style.display = 'none';
         document.getElementById('end-time').value = "17:00";
         
         fetch(SHEET_URL, {
-    method: "POST",
-    body: JSON.stringify({
-        type: "record",
-        date, field: fieldsStr, work: worksStr,
-        time: timeStr, note
-    })
-});
+            method: "POST",
+            body: JSON.stringify({
+                type: "record",
+                date, field: fieldsStr, work: worksStr,
+                time: timeStr, note
+            })
+        });
         alert("保存しました！");
         selectedDateStr = date;
         buildWeekCalendar();
@@ -1396,21 +1395,18 @@ if (editPreviewImg) {
     localStorage.setItem('farm_yields', JSON.stringify(yields));
     saveToFirebase('farm_yields', yields);
     renderYields();
-
-    fetch(SHEET_URL, {
-    method: "POST",
-    body: JSON.stringify({
-        type: "yield",
-        date, field: "3S-①", a: a1, b: b1
-    })
-});
-fetch(SHEET_URL, {
-    method: "POST",
-    body: JSON.stringify({
-        type: "yield",
-        date, field: "3S-②", a: a2, b: b2
-    })
-});
+    if (a1 || b1) {
+        fetch(SHEET_URL, {
+            method: "POST",
+            body: JSON.stringify({ type: "yield", date, field: "3S-①", a: a1, b: b1 })
+        });
+    }
+    if (a2 || b2) {
+        fetch(SHEET_URL, {
+            method: "POST",
+            body: JSON.stringify({ type: "yield", date, field: "3S-②", a: a2, b: b2 })
+        });
+    }
     alert("保存しました");
 
     document.getElementById('yield-a1').value = "";
