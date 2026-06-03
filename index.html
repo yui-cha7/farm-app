@@ -450,6 +450,7 @@ body {
 </div>
 
 <button class="submit-btn" onclick="saveYield()">保存</button>
+<button onclick="exportAllToSheet()" style="width:100%; margin-top:10px; padding:12px; background:#f0f7f0; color:#2d5a27; border:2px solid #2d5a27; border-radius:8px; font-weight:bold; font-size:0.9em; cursor:pointer;">📤 過去データをスプレッドシートに送る</button>
         <!-- 月別コンテナ数サマリー -->
         <div style="background:#f0f7f0; border-radius:12px; padding:14px; margin-top:20px; margin-bottom:16px;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
@@ -1127,9 +1128,16 @@ if (previewImg) previewImg.style.display = 'none';
     function deleteRecord() {
         if(!confirm("この記録を削除しますか？")) return;
         const records = getStorageRecords();
+        const deletedRecord = records[editingRecordIndex];
         records.splice(editingRecordIndex, 1);
         localStorage.setItem('farm_records', JSON.stringify(records));
         saveToFirebase('farm_records', getStorageRecords());
+        if (deletedRecord && deletedRecord.id) {
+            fetch(SHEET_URL, {
+                method: "POST",
+                body: JSON.stringify({ type: "delete_record", id: deletedRecord.id })
+            });
+        }
         switchView('main-view');
         buildWeekCalendar();
         showDayDetail(selectedDateStr);
@@ -1382,14 +1390,16 @@ if (editPreviewImg) {
 
     const a1 = document.getElementById('yield-a1').value;
     const b1 = document.getElementById('yield-b1').value;
+    const id1 = Date.now();
     if (a1 || b1) {
-        yields.push({ date, field: "3S-①", a: a1, b: b1 });
+        yields.push({ id: id1, date, field: "3S-①", a: a1, b: b1 });
     }
 
     const a2 = document.getElementById('yield-a2').value;
     const b2 = document.getElementById('yield-b2').value;
+    const id2 = Date.now() + 1;
     if (a2 || b2) {
-        yields.push({ date, field: "3S-②", a: a2, b: b2 });
+        yields.push({ id: id2, date, field: "3S-②", a: a2, b: b2 });
     }
 
     localStorage.setItem('farm_yields', JSON.stringify(yields));
@@ -1398,13 +1408,13 @@ if (editPreviewImg) {
     if (a1 || b1) {
         fetch(SHEET_URL, {
             method: "POST",
-            body: JSON.stringify({ type: "yield", date, field: "3S-①", a: a1, b: b1 })
+            body: JSON.stringify({ type: "yield", id: id1, date, field: "3S-①", a: a1, b: b1 })
         });
     }
     if (a2 || b2) {
         fetch(SHEET_URL, {
             method: "POST",
-            body: JSON.stringify({ type: "yield", date, field: "3S-②", a: a2, b: b2 })
+            body: JSON.stringify({ type: "yield", id: id2, date, field: "3S-②", a: a2, b: b2 })
         });
     }
     alert("保存しました");
@@ -1441,9 +1451,16 @@ function deleteYieldRecord() {
     if (!confirm("この収量記録を削除しますか？")) return;
     const index = parseInt(document.getElementById('modal-yield-index').value);
     const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
+    const deletedYield = yields[index];
     yields.splice(index, 1);
     localStorage.setItem('farm_yields', JSON.stringify(yields));
     saveToFirebase('farm_yields', JSON.parse(localStorage.getItem('farm_yields')));
+    if (deletedYield && deletedYield.id) {
+        fetch(SHEET_URL, {
+            method: "POST",
+            body: JSON.stringify({ type: "delete_yield", id: deletedYield.id })
+        });
+    }
     closeYieldModal();
     renderYields();
 }
@@ -1457,6 +1474,43 @@ function changeYieldMonth(offset) {
     renderYieldSummary();
 }
 window.changeYieldMonth = changeYieldMonth;
+
+async function exportAllToSheet() {
+    if (!confirm("Firebaseの全データをスプレッドシートに送ります。\n既にスプレッドシートにあるデータと重複する場合があります。\n続けますか？")) return;
+
+    const records = JSON.parse(localStorage.getItem('farm_records') || "[]");
+    const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
+    let count = 0;
+
+    for (const r of records) {
+        await fetch(SHEET_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                type: "record",
+                id: r.id || Date.now() + Math.random(),
+                date: r.date, field: r.field,
+                work: r.work, time: r.time, note: r.note || ""
+            })
+        });
+        count++;
+    }
+
+    for (const y of yields) {
+        await fetch(SHEET_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                type: "yield",
+                id: y.id || Date.now() + Math.random(),
+                date: y.date, field: y.field,
+                a: y.a, b: y.b
+            })
+        });
+        count++;
+    }
+
+    alert(`完了！${count}件のデータをスプレッドシートに送りました。`);
+}
+window.exportAllToSheet = exportAllToSheet;
 
 function renderYieldSummary() {
     const y = yieldSummaryMonth.getFullYear();
