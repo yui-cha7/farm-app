@@ -1426,6 +1426,37 @@ if (editPreviewImg) {
 }
 window.saveYield = saveYield;
 
+let editingYieldIndex = null;
+
+function editYield(index) {
+    const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
+    const y = yields[index];
+
+    editingYieldIndex = index;
+
+    document.getElementById('yield-date').value = y.date;
+
+    // 一旦全部クリア
+    document.getElementById('yield-a1').value = "";
+    document.getElementById('yield-b1').value = "";
+    document.getElementById('yield-a2').value = "";
+    document.getElementById('yield-b2').value = "";
+
+    if (y.field === "3S-①") {
+        document.getElementById('yield-a1').value = y.a || "";
+        document.getElementById('yield-b1').value = y.b || "";
+    }
+
+    if (y.field === "3S-②") {
+        document.getElementById('yield-a2').value = y.a || "";
+        document.getElementById('yield-b2').value = y.b || "";
+    }
+
+    switchView('yield-view');
+}
+
+window.editYield = editYield;
+
 function closeYieldModal() {
     document.getElementById('yield-modal').style.display = 'none';
 }
