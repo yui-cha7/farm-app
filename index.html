@@ -274,6 +274,19 @@
     margin-bottom: 20px;
 }
 
+#memo-view {
+    display: none;
+    overflow-y: auto !important;
+    background: white;
+    padding-bottom: 80px;
+    flex: none !important;
+    height: auto !important;
+    min-height: unset !important;
+}
+#memo-view.active {
+    display: block !important;
+}
+
 /* --- スマホでのスクロールを強制的に有効化する --- */
 body {
     overflow-y: visible;
@@ -539,7 +552,7 @@ body {
         </div>
     </div>
 </div>
-        <div id="memo-view" class="view" style="background: white; overflow-y: auto;">
+        <div id="memo-view" class="view">
     <div id="memo-list-container" style="padding: 8px 16px 0;"></div>
     <div id="memo-form" style="display: none; padding: 16px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
