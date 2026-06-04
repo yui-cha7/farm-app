@@ -491,40 +491,56 @@ body {
 </div>
 </div>
 <div id="yield-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center;" onclick="if(event.target===this)closeYieldModal()">
-    <div style="background:white; border-radius:16px; padding:24px; width:90%; max-width:400px;">
-        <h3 style="margin:0 0 16px; color:#2d5a27;">収量記録を編集</h3>
-        <input type="hidden" id="modal-yield-index">
-        <div class="form-group">
-            <label style="font-weight:bold; color:#2d5a27; font-size:0.9em; display:block; margin-bottom:6px;">日付</label>
-            <input type="date" id="modal-yield-date" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box;">
+    <div style="background:white; border-radius:16px; padding:24px; width:90%; max-width:420px; max-height:90vh; overflow-y:auto;">
+        <h3 style="margin:0 0 16px; color:#2d5a27;">📅 収量記録を編集</h3>
+        <input type="hidden" id="modal-yield-date">
+        <div style="font-size:1em; font-weight:bold; color:#2d5a27; margin-bottom:16px; padding:8px 12px; background:#f0f7f0; border-radius:8px;" id="modal-yield-date-label"></div>
+
+        <!-- 3S-① -->
+        <div style="background:#f9f9f9; border-radius:12px; padding:16px; margin-bottom:12px; border-left:4px solid #2d5a27;">
+            <div style="font-weight:bold; color:#2d5a27; margin-bottom:12px;">🏠 3S-①</div>
+            <div style="display:flex; gap:12px;">
+                <div style="flex:1;">
+                    <label style="font-size:0.82em; color:#7f8c8d; display:block; margin-bottom:4px;">A品（コンテナ数）</label>
+                    <input type="number" id="modal-yield-a1" placeholder="0" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.4em; font-weight:bold; text-align:center;">
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:0.82em; color:#7f8c8d; display:block; margin-bottom:4px;">はね出し（コンテナ数）</label>
+                    <input type="number" id="modal-yield-b1" placeholder="0" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.4em; font-weight:bold; text-align:center;">
+                </div>
+            </div>
+            <div style="text-align:right; margin-top:8px; font-size:0.85em; color:#666;">
+                <button onclick="deleteYieldByField('3S-①')" style="background:none; border:none; color:#e74c3c; font-size:0.85em; cursor:pointer; padding:2px 4px;">🗑 この圃場の記録を削除</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label style="font-weight:bold; color:#2d5a27; font-size:0.9em; display:block; margin-bottom:6px;">圃場</label>
-            <select id="modal-yield-field" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box;">
-                <option value="3S-①">3S-①</option>
-                <option value="3S-②">3S-②</option>
-            </select>
+
+        <!-- 3S-② -->
+        <div style="background:#f9f9f9; border-radius:12px; padding:16px; margin-bottom:16px; border-left:4px solid #5a8a27;">
+            <div style="font-weight:bold; color:#2d5a27; margin-bottom:12px;">🏠 3S-②</div>
+            <div style="display:flex; gap:12px;">
+                <div style="flex:1;">
+                    <label style="font-size:0.82em; color:#7f8c8d; display:block; margin-bottom:4px;">A品（コンテナ数）</label>
+                    <input type="number" id="modal-yield-a2" placeholder="0" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.4em; font-weight:bold; text-align:center;">
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:0.82em; color:#7f8c8d; display:block; margin-bottom:4px;">はね出し（コンテナ数）</label>
+                    <input type="number" id="modal-yield-b2" placeholder="0" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.4em; font-weight:bold; text-align:center;">
+                </div>
+            </div>
+            <div style="text-align:right; margin-top:8px; font-size:0.85em; color:#666;">
+                <button onclick="deleteYieldByField('3S-②')" style="background:none; border:none; color:#e74c3c; font-size:0.85em; cursor:pointer; padding:2px 4px;">🗑 この圃場の記録を削除</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label style="font-weight:bold; color:#2d5a27; font-size:0.9em; display:block; margin-bottom:6px;">A品（コンテナ数）</label>
-            <input type="number" id="modal-yield-a" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box;">
-        </div>
-        <div class="form-group">
-            <label style="font-weight:bold; color:#2d5a27; font-size:0.9em; display:block; margin-bottom:6px;">はね出し（コンテナ数）</label>
-            <input type="number" id="modal-yield-b" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box;">
-        </div>
-        <div style="display:flex; gap:10px; margin-top:8px;">
+
+        <div style="display:flex; gap:10px; margin-top:4px;">
             <button onclick="closeYieldModal()" style="flex:1; padding:12px; border:none; border-radius:8px; background:#e2e8f0; color:#333; font-weight:bold; cursor:pointer;">キャンセル</button>
-            <button onclick="deleteYieldRecord()" style="flex:1; padding:12px; border:none; border-radius:8px; background:#e74c3c; color:white; font-weight:bold; cursor:pointer;">削除</button>
-            <button onclick="updateYieldRecord()" style="flex:1; padding:12px; border:none; border-radius:8px; background:#2d5a27; color:white; font-weight:bold; cursor:pointer;">保存</button>
+            <button onclick="deleteYieldDay()" style="flex:1; padding:12px; border:none; border-radius:8px; background:#e74c3c; color:white; font-weight:bold; cursor:pointer;">この日を全削除</button>
+            <button onclick="updateYieldDay()" style="flex:1; padding:12px; border:none; border-radius:8px; background:#2d5a27; color:white; font-weight:bold; cursor:pointer;">保存</button>
         </div>
     </div>
 </div>
         <div id="memo-view" class="view" style="background: white; overflow-y: auto;">
-    <div style="display: flex; justify-content: flex-end; padding: 2px 16px;">
-        <button id="toggle-memo-btn" onclick="toggleMemoForm()" style="background: var(--primary-color); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;">＋</button>
-    </div>
-    <div id="memo-list-container" style="padding: 0 16px;"></div>
+    <div id="memo-list-container" style="padding: 8px 16px 0;"></div>
     <div id="memo-form" style="display: none; padding: 16px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
         <button type="button" onclick="resetForm()" style="background: #e2e8f0; color: #333; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">← 戻る</button>
@@ -682,7 +698,8 @@ if (previewImg) {
         addBtn.style.display = "none";
     } else if (id === 'memo-view') {
         title.innerText = "メモ帳";
-        addBtn.style.display = "none";
+        addBtn.style.display = "flex";
+        addBtn.onclick = toggleMemoForm;
     } else if (id === 'yield-view') {
         title.innerText = "収量記録";
         addBtn.style.display = "none";
@@ -1426,76 +1443,107 @@ if (editPreviewImg) {
 }
 window.saveYield = saveYield;
 
-let editingYieldIndex = null;
-
-function editYield(index) {
+function editYieldDay(date) {
     const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
-    const y = yields[index];
+    const dayYields = yields.filter(y => y.date === date);
+    const y1 = dayYields.find(y => y.field === "3S-①") || {};
+    const y2 = dayYields.find(y => y.field === "3S-②") || {};
 
-    editingYieldIndex = index;
+    document.getElementById('modal-yield-date').value = date;
+    document.getElementById('modal-yield-date-label').textContent = date;
+    document.getElementById('modal-yield-a1').value = y1.a || "";
+    document.getElementById('modal-yield-b1').value = y1.b || "";
+    document.getElementById('modal-yield-a2').value = y2.a || "";
+    document.getElementById('modal-yield-b2').value = y2.b || "";
 
-    document.getElementById('yield-date').value = y.date;
-
-    // 一旦全部クリア
-    document.getElementById('yield-a1').value = "";
-    document.getElementById('yield-b1').value = "";
-    document.getElementById('yield-a2').value = "";
-    document.getElementById('yield-b2').value = "";
-
-    if (y.field === "3S-①") {
-        document.getElementById('yield-a1').value = y.a || "";
-        document.getElementById('yield-b1').value = y.b || "";
-    }
-
-    if (y.field === "3S-②") {
-        document.getElementById('yield-a2').value = y.a || "";
-        document.getElementById('yield-b2').value = y.b || "";
-    }
-
-    switchView('yield-view');
+    document.getElementById('yield-modal').style.display = 'flex';
 }
-
-window.editYield = editYield;
+window.editYieldDay = editYieldDay;
 
 function closeYieldModal() {
     document.getElementById('yield-modal').style.display = 'none';
 }
 window.closeYieldModal = closeYieldModal;
 
-function updateYieldRecord() {
-    const index = parseInt(document.getElementById('modal-yield-index').value);
-    const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
-    yields[index] = {
-        date: document.getElementById('modal-yield-date').value,
-        
-        a: document.getElementById('modal-yield-a').value,
-        b: document.getElementById('modal-yield-b').value
-    };
+function updateYieldDay() {
+    const date = document.getElementById('modal-yield-date').value;
+    const a1 = document.getElementById('modal-yield-a1').value;
+    const b1 = document.getElementById('modal-yield-b1').value;
+    const a2 = document.getElementById('modal-yield-a2').value;
+    const b2 = document.getElementById('modal-yield-b2').value;
+
+    let yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
+    // 対象日の既存レコードを取得（id保持のため）
+    const old1 = yields.find(y => y.date === date && y.field === "3S-①") || {};
+    const old2 = yields.find(y => y.date === date && y.field === "3S-②") || {};
+    // 対象日を除いた配列
+    yields = yields.filter(y => y.date !== date);
+
+    if (a1 !== "" || b1 !== "") {
+        yields.push({ id: old1.id || Date.now(), date, field: "3S-①", a: a1, b: b1 });
+    }
+    if (a2 !== "" || b2 !== "") {
+        yields.push({ id: old2.id || Date.now() + 1, date, field: "3S-②", a: a2, b: b2 });
+    }
+
     localStorage.setItem('farm_yields', JSON.stringify(yields));
-    saveToFirebase('farm_yields', JSON.parse(localStorage.getItem('farm_yields')));
+    saveToFirebase('farm_yields', yields);
+    closeYieldModal();
+    renderYields();
+    alert("保存しました");
+}
+window.updateYieldDay = updateYieldDay;
+
+function deleteYieldDay() {
+    const date = document.getElementById('modal-yield-date').value;
+    if (!confirm(`${date} の収量記録をすべて削除しますか？`)) return;
+
+    let yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
+    const toDelete = yields.filter(y => y.date === date);
+    yields = yields.filter(y => y.date !== date);
+
+    localStorage.setItem('farm_yields', JSON.stringify(yields));
+    saveToFirebase('farm_yields', yields);
+    toDelete.forEach(d => {
+        if (d.id) {
+            fetch(SHEET_URL, {
+                method: "POST",
+                body: JSON.stringify({ type: "delete_yield", id: d.id })
+            });
+        }
+    });
     closeYieldModal();
     renderYields();
 }
-window.updateYieldRecord = updateYieldRecord;
+window.deleteYieldDay = deleteYieldDay;
 
-function deleteYieldRecord() {
-    if (!confirm("この収量記録を削除しますか？")) return;
-    const index = parseInt(document.getElementById('modal-yield-index').value);
-    const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
-    const deletedYield = yields[index];
-    yields.splice(index, 1);
+function deleteYieldByField(field) {
+    const date = document.getElementById('modal-yield-date').value;
+    if (!confirm(`${date} の ${field} の記録を削除しますか？`)) return;
+
+    let yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
+    const toDelete = yields.find(y => y.date === date && y.field === field);
+    yields = yields.filter(y => !(y.date === date && y.field === field));
+
     localStorage.setItem('farm_yields', JSON.stringify(yields));
-    saveToFirebase('farm_yields', JSON.parse(localStorage.getItem('farm_yields')));
-    if (deletedYield && deletedYield.id) {
+    saveToFirebase('farm_yields', yields);
+    if (toDelete && toDelete.id) {
         fetch(SHEET_URL, {
             method: "POST",
-            body: JSON.stringify({ type: "delete_yield", id: deletedYield.id })
+            body: JSON.stringify({ type: "delete_yield", id: toDelete.id })
         });
     }
-    closeYieldModal();
+    // モーダルの該当フィールドをクリア
+    if (field === "3S-①") {
+        document.getElementById('modal-yield-a1').value = "";
+        document.getElementById('modal-yield-b1').value = "";
+    } else {
+        document.getElementById('modal-yield-a2').value = "";
+        document.getElementById('modal-yield-b2').value = "";
+    }
     renderYields();
 }
-window.deleteYieldRecord = deleteYieldRecord;
+window.deleteYieldByField = deleteYieldByField;
 
 // 月別サマリー用の基準月（初期値は今月）
 let yieldSummaryMonth = new Date();
@@ -1555,26 +1603,48 @@ function renderYields() {
         return;
     }
 
-    const dates = [...new Set(yields.map(y => y.date))].sort((a, b) => new Date(b) - new Date(a));
+    const dates = [...new Set(yields.map(y => y.date))]
+    .sort((a, b) => new Date(b) - new Date(a));
+
 container.innerHTML = dates.map(date => {
-    const dayYields = yields.map((y, i) => ({...y, _index: i})).filter(y => y.date === date);
+
+    const dayYields = yields
+        .map((y, i) => ({ ...y, _index: i }))
+        .filter(y => y.date === date);
+
     const rows = dayYields.map(y => {
-        const total = (Number(y.a) || 0) + (Number(y.b) || 0);
+
+        const total =
+            (Number(y.a) || 0) +
+            (Number(y.b) || 0);
+
         return `
-            <div onclick="editYield(${y._index})" style="cursor:pointer; padding:8px 0; border-bottom:1px solid #e2e8f0;">
+            <div style="padding:8px 0; border-bottom:1px solid #e2e8f0;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span>🏠 ${y.field}</span>
-                    <span style="font-size:0.85em; color:#666;">A品：${y.a||0} / はね：${y.b||0} / 合計：${total}</span>
+                    <span style="font-size:0.85em; color:#666;">
+                        A品：${y.a || 0}
+                        / はね：${y.b || 0}
+                        / 合計：${total}
+                    </span>
                 </div>
             </div>`;
     }).join('');
+
     return `
-        <div class="single-record-block" style="margin-bottom:12px;">
-            <div style="font-weight:bold; color:#2d5a27; margin-bottom:6px;">📅 ${date}</div>
+        <div class="single-record-block" style="margin-bottom:12px; cursor:pointer;" onclick="editYieldDay('${date}')">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-weight:bold; color:#2d5a27;">📅 ${date}</span>
+                <span style="font-size:0.8em; color:#aaa;">タップして編集 ›</span>
+            </div>
             ${rows}
         </div>`;
 }).join('');
 }
+
+
+
+
 let yieldChart;
 
 function renderYieldChart(yields) {
