@@ -430,36 +430,39 @@ body {
        
 
 <div id="yield-view" class="view">
+    <div style="padding:16px; padding-bottom:120px; overflow-y:auto; flex:1;">
 
-    <div style="padding:16px; padding-bottom:120px;">
-
- <div class="form-group">
-    <label>日付</label>
-    <input type="date" id="yield-date">
+ <div class="form-group" style="margin-bottom:10px;">
+    <label style="font-size:0.85em;">日付</label>
+    <input type="date" id="yield-date" style="padding:8px 12px;">
 </div>
 
-<div style="background:#f9f9f9; border-radius:12px; padding:16px; margin-bottom:12px;">
-    <div style="font-weight:bold; color:#2d5a27; margin-bottom:12px;">🏠 3S-①</div>
-    <div class="form-group">
-        <label>A品（コンテナ数）</label>
-        <input type="number" id="yield-a1" style="width:100%; padding:16px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.8em; font-weight:bold; text-align:center;">
-    </div>
-    <div class="form-group">
-        <label>はね出し（コンテナ数）</label>
-        <input type="number" id="yield-b1" style="width:100%; padding:16px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.8em; font-weight:bold; text-align:center;">
-    </div>
-</div>
+<div style="display:flex; gap:10px; margin-bottom:12px;">
 
-<div style="background:#f9f9f9; border-radius:12px; padding:16px; margin-bottom:12px;">
-    <div style="font-weight:bold; color:#2d5a27; margin-bottom:12px;">🏠 3S-②</div>
-    <div class="form-group">
-        <label>A品（コンテナ数）</label>
-        <input type="number" id="yield-a2" style="width:100%; padding:16px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.8em; font-weight:bold; text-align:center;">
+    <div style="flex:1; background:#f9f9f9; border-radius:12px; padding:10px 8px;">
+        <div style="font-weight:bold; color:#2d5a27; margin-bottom:8px; font-size:0.88em; text-align:center;">🏠 3S-①</div>
+        <div style="margin-bottom:6px;">
+            <label style="font-size:0.72em; color:#7f8c8d; display:block; margin-bottom:3px; text-align:center;">A品</label>
+            <input type="number" id="yield-a1" placeholder="0" style="width:100%; padding:8px 2px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.4em; font-weight:bold; text-align:center;">
+        </div>
+        <div>
+            <label style="font-size:0.72em; color:#7f8c8d; display:block; margin-bottom:3px; text-align:center;">はね出し</label>
+            <input type="number" id="yield-b1" placeholder="0" style="width:100%; padding:8px 2px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.4em; font-weight:bold; text-align:center;">
+        </div>
     </div>
-    <div class="form-group">
-        <label>はね出し（コンテナ数）</label>
-        <input type="number" id="yield-b2" style="width:100%; padding:16px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.8em; font-weight:bold; text-align:center;">
+
+    <div style="flex:1; background:#f9f9f9; border-radius:12px; padding:10px 8px;">
+        <div style="font-weight:bold; color:#2d5a27; margin-bottom:8px; font-size:0.88em; text-align:center;">🏠 3S-②</div>
+        <div style="margin-bottom:6px;">
+            <label style="font-size:0.72em; color:#7f8c8d; display:block; margin-bottom:3px; text-align:center;">A品</label>
+            <input type="number" id="yield-a2" placeholder="0" style="width:100%; padding:8px 2px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.4em; font-weight:bold; text-align:center;">
+        </div>
+        <div>
+            <label style="font-size:0.72em; color:#7f8c8d; display:block; margin-bottom:3px; text-align:center;">はね出し</label>
+            <input type="number" id="yield-b2" placeholder="0" style="width:100%; padding:8px 2px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box; font-size:1.4em; font-weight:bold; text-align:center;">
+        </div>
     </div>
+
 </div>
 
 <button class="submit-btn" onclick="saveYield()">保存</button>
@@ -476,26 +479,46 @@ body {
                     <div style="font-size:0.78em; color:#7f8c8d; margin-bottom:4px;">3S-① A品</div>
                     <div id="summary-f1-a" style="font-size:1.6em; font-weight:bold; color:#2d5a27;">-</div>
                     <div style="font-size:0.72em; color:#aaa;">コンテナ</div>
+                    <div style="border-top:1px solid #e2e8f0; margin-top:8px; padding-top:6px;">
+                        <div style="font-size:0.72em; color:#aaa;">はね出し</div>
+                        <div id="summary-f1-b" style="font-size:1.1em; font-weight:bold; color:#999;">-</div>
+                    </div>
                 </div>
                 <div style="flex:1; background:white; border-radius:10px; padding:12px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
                     <div style="font-size:0.78em; color:#7f8c8d; margin-bottom:4px;">3S-② A品</div>
                     <div id="summary-f2-a" style="font-size:1.6em; font-weight:bold; color:#2d5a27;">-</div>
                     <div style="font-size:0.72em; color:#aaa;">コンテナ</div>
+                    <div style="border-top:1px solid #e2e8f0; margin-top:8px; padding-top:6px;">
+                        <div style="font-size:0.72em; color:#aaa;">はね出し</div>
+                        <div id="summary-f2-b" style="font-size:1.1em; font-weight:bold; color:#999;">-</div>
+                    </div>
                 </div>
                 <div style="flex:1; background:#2d5a27; border-radius:10px; padding:12px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.1);">
                     <div style="font-size:0.78em; color:rgba(255,255,255,0.8); margin-bottom:4px;">合計</div>
                     <div id="summary-total" style="font-size:1.6em; font-weight:bold; color:white;">-</div>
-                    <div style="font-size:0.72em; color:rgba(255,255,255,0.7);">コンテナ</div>
+                    <div style="font-size:0.72em; color:rgba(255,255,255,0.6);">コンテナ</div>
+                    <div style="border-top:1px solid rgba(255,255,255,0.2); margin-top:8px; padding-top:6px;">
+                        <div style="font-size:0.72em; color:rgba(255,255,255,0.7);">はね出し</div>
+                        <div id="summary-total-b" style="font-size:1.1em; font-weight:bold; color:rgba(255,255,255,0.9);">-</div>
+                    </div>
                 </div>
             </div>
+        <div style="margin-top:10px; background:white; border-radius:10px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+            <span style="font-size:0.82em; color:#7f8c8d;">A品率（月間）</span>
+            <span id="summary-a-rate" style="font-size:1.2em; font-weight:bold; color:#f5a623;">-%</span>
+        </div>
         </div>
 
-        <div style="height:300px; margin-bottom:20px;">
-    <canvas id="yieldChart"></canvas>
+        <div style="font-weight:bold; color:#2d5a27; font-size:0.95em; margin-bottom:8px;">週ごとの収量</div>
+<div style="display:flex; gap:12px; margin-bottom:8px; font-size:0.78em; color:#666;">
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#36a2eb;margin-right:4px;"></span>3S-① A品</span>
+    <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ff6384;margin-right:4px;"></span>3S-② A品</span>
+    <span><span style="display:inline-block;width:18px;height:3px;border-radius:2px;background:#f5a623;margin-right:4px;vertical-align:middle;"></span>A品率</span>
 </div>
-<div style="font-weight:bold; color:#2d5a27; font-size:0.95em; margin-top:16px;">週ごとの収量</div>
-<div style="height:300px; margin-top:8px; margin-bottom:20px;">
-    <canvas id="weeklyYieldChart"></canvas>
+<div style="overflow-x:auto; -webkit-overflow-scrolling:touch; margin-bottom:20px;">
+    <div id="weeklyYieldChartWrap" style="position:relative; height:260px; min-width:300px;">
+        <canvas id="weeklyYieldChart" style="display:block;"></canvas>
+    </div>
 </div>
         <div id="yield-list" style="margin-top:20px;"></div>
 
@@ -728,7 +751,11 @@ window.switchView = switchView;
         document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         if(viewId === 'calendar-view') buildFullCalendar();
-        if (viewId === 'memo-view') {renderMemos();resetForm();}
+        if(viewId === 'memo-view') { renderMemos(); resetForm(); }
+        if(viewId === 'yield-view') {
+            document.getElementById('yield-date').value = new Date().toISOString().split('T')[0];
+            setTimeout(() => renderYields(), 150);
+        }
     }
 
 window.switchTab = switchTab;
@@ -752,6 +779,7 @@ window.switchTab = switchTab;
    window.onload = function() {
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('date').value = today;
+    document.getElementById('yield-date').value = today;
     selectedDateStr = today;
     generateTimeOptions();
     renderFieldCheckboxes();
@@ -1581,29 +1609,28 @@ function renderYieldSummary() {
 
     const f1a = monthYields.filter(r => r.field === "3S-①").reduce((s, r) => s + (Number(r.a) || 0), 0);
     const f2a = monthYields.filter(r => r.field === "3S-②").reduce((s, r) => s + (Number(r.a) || 0), 0);
+    const f1b = monthYields.filter(r => r.field === "3S-①").reduce((s, r) => s + (Number(r.b) || 0), 0);
+    const f2b = monthYields.filter(r => r.field === "3S-②").reduce((s, r) => s + (Number(r.b) || 0), 0);
     const total = f1a + f2a;
+    const totalB = f1b + f2b;
 
     document.getElementById('yield-month-title').textContent = `${y}年${m + 1}月 の収量`;
     document.getElementById('summary-f1-a').textContent = f1a;
     document.getElementById('summary-f2-a').textContent = f2a;
     document.getElementById('summary-total').textContent = total;
+    document.getElementById('summary-f1-b').textContent = f1b;
+    document.getElementById('summary-f2-b').textContent = f2b;
+    document.getElementById('summary-total-b').textContent = totalB;
+    const totalAll = total + totalB;
+    const aRate = totalAll > 0 ? Math.round(total / totalAll * 100) : '-';
+    document.getElementById('summary-a-rate').textContent = aRate === '-' ? '-%' : aRate + '%';
 }
 
 function renderYields() {
+    const container = document.getElementById('yield-list');
+    if (!container) return;
 
-    const container =
-        document.getElementById('yield-list');
-
-    const chartCanvas =
-        document.getElementById('yieldChart');
-
-    if (!container || !chartCanvas) {
-        return;
-    }
-
-    const yields = JSON.parse(
-        localStorage.getItem('farm_yields') || "[]"
-    );
+    const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
 
     renderYieldChart(yields);
     renderYieldSummary();
@@ -1657,85 +1684,11 @@ container.innerHTML = dates.map(date => {
 
 
 
-let yieldChart;
+let weeklyYieldChart;
 
 function renderYieldChart(yields) {
-
-    const dates = [...new Set(
-        yields.map(y => y.date)
-    )].sort((a, b) => new Date(a) - new Date(b));
-
-    const field1Data = dates.map(date => {
-
-        return yields
-            .filter(y =>
-                y.date === date &&
-                y.field === "3S-①"
-            )
-            .reduce((sum, y) =>
-                sum + (Number(y.a) || 0),
-            0);
-
-    });
-
-    const field2Data = dates.map(date => {
-
-        return yields
-            .filter(y =>
-                y.date === date &&
-                y.field === "3S-②"
-            )
-            .reduce((sum, y) =>
-                sum + (Number(y.a) || 0),
-            0);
-
-    });
-
-    const ctx =
-        document.getElementById('yieldChart')
-        .getContext('2d');
-
-    if (
-        yieldChart &&
-        typeof yieldChart.destroy === 'function'
-    ) {
-        yieldChart.destroy();
-    }
-
-    yieldChart = new Chart(ctx, {
-
-        type: 'line',
-
-        data: {
-
-            labels: dates,
-
-            datasets: [
-
-                {
-                    label: '3S-①',
-                    data: field1Data,
-                    tension: 0
-                },
-
-                {
-                    label: '3S-②',
-                    data: field2Data,
-                    tension: 0
-                }
-
-            ]
-        },
-
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-
-    });
-renderWeeklyYieldChart(yields);
+    renderWeeklyYieldChart(yields);
 }
-let weeklyYieldChart;
 
 function renderWeeklyYieldChart(yields) {
     const getWeekLabel = (dateStr) => {
@@ -1749,30 +1702,71 @@ function renderWeeklyYieldChart(yields) {
     const weekMap = {};
     yields.forEach(y => {
         const week = getWeekLabel(y.date);
-        if (!weekMap[week]) weekMap[week] = { field1: 0, field2: 0 };
-        if (y.field === "3S-①") weekMap[week].field1 += Number(y.a) || 0;
-        if (y.field === "3S-②") weekMap[week].field2 += Number(y.a) || 0;
+        if (!weekMap[week]) weekMap[week] = { f1a:0, f2a:0, f1b:0, f2b:0 };
+        if (y.field === "3S-①") { weekMap[week].f1a += Number(y.a) || 0; weekMap[week].f1b += Number(y.b) || 0; }
+        if (y.field === "3S-②") { weekMap[week].f2a += Number(y.a) || 0; weekMap[week].f2b += Number(y.b) || 0; }
     });
 
     const weeks = Object.keys(weekMap).sort();
-    const ctx = document.getElementById('weeklyYieldChart').getContext('2d');
+    const aRate = weeks.map(w => {
+        const a = weekMap[w].f1a + weekMap[w].f2a;
+        const total = a + weekMap[w].f1b + weekMap[w].f2b;
+        return total > 0 ? Math.round(a / total * 100) : 0;
+    });
 
-    if (weeklyYieldChart && typeof weeklyYieldChart.destroy === 'function') {
-        weeklyYieldChart.destroy();
-    }
+    const wrap = document.getElementById('weeklyYieldChartWrap');
+    const containerW = wrap.parentElement.offsetWidth || 320;
+    const w = weeks.length <= 8 ? containerW : Math.max(containerW, weeks.length * 55 + 50);
+    wrap.style.width = w + 'px';
 
-    weeklyYieldChart = new Chart(ctx, {
-        type: 'line',
+    if (weeklyYieldChart && typeof weeklyYieldChart.destroy === 'function') weeklyYieldChart.destroy();
+
+    weeklyYieldChart = new Chart(document.getElementById('weeklyYieldChart').getContext('2d'), {
+        type: 'bar',
         data: {
             labels: weeks,
             datasets: [
-                { label: '3S-①', data: weeks.map(w => weekMap[w].field1), tension: 0 },
-                { label: '3S-②', data: weeks.map(w => weekMap[w].field2), tension: 0 }
+                { label:'3S-① A品', data:weeks.map(w => weekMap[w].f1a), backgroundColor:'#36a2eb', stack:'a', borderRadius:0, yAxisID:'y' },
+                { label:'3S-② A品', data:weeks.map(w => weekMap[w].f2a), backgroundColor:'#ff6384', stack:'a', borderRadius:0, yAxisID:'y' },
+                {
+                    label:'A品率',
+                    data: aRate,
+                    type: 'line',
+                    borderColor: '#f5a623',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#f5a623',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    fill: false,
+                    tension: 0.4,
+                    yAxisID: 'y2'
+                }
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ctx.dataset.label === 'A品率'
+                            ? `A品率: ${ctx.parsed.y}%`
+                            : `${ctx.dataset.label}: ${ctx.parsed.y}`
+                    }
+                }
+            },
+            scales: {
+                x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, autoSkip: false } },
+                y: { stacked: true, beginAtZero: true, ticks: { font: { size: 11 } }, grid: { color: 'rgba(0,0,0,0.06)' }, title: { display: true, text: 'コンテナ', font: { size: 10 }, color: '#999' } },
+                y2: { position: 'right', min: 0, max: 100, ticks: { font: { size: 11 }, callback: v => v + '%' }, grid: { display: false }, title: { display: true, text: 'A品率', font: { size: 10 }, color: '#999' } }
+            }
+        }
     });
 }
+
 
 
 
