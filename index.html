@@ -1037,7 +1037,7 @@ if (previewImg2) previewImg2.style.display = 'none';
         document.getElementById('memo-content').value = "";
         
         document.getElementById('memo-list-container').style.display = "none";
-        document.getElementById('toggle-memo-btn').style.display = "none";
+        document.getElementById('header-add-btn').style.display = "none";
         document.getElementById('memo-form').style.display = "block";
         
         const delBtn = document.getElementById('delete-memo-btn');
@@ -1054,7 +1054,7 @@ if (previewImg2) previewImg2.style.display = 'none';
         document.getElementById('memo-content').value = m.content;
         
         document.getElementById('memo-list-container').style.display = "none";
-        document.getElementById('toggle-memo-btn').style.display = "none";
+        document.getElementById('header-add-btn').style.display = "none";
         document.getElementById('memo-form').style.display = "block";
         
         if (!document.getElementById('delete-memo-btn')) {
@@ -1105,7 +1105,7 @@ if (previewImg2) previewImg2.style.display = 'none';
         document.getElementById('memo-content').value = "";
         
         document.getElementById('memo-list-container').style.display = "block";
-        document.getElementById('toggle-memo-btn').style.display = "block";
+        document.getElementById('header-add-btn').style.display = "flex";
         document.getElementById('memo-form').style.display = "none";
         
         const delBtn = document.getElementById('delete-memo-btn');
@@ -1633,9 +1633,8 @@ container.innerHTML = dates.map(date => {
 
     return `
         <div class="single-record-block" style="margin-bottom:12px; cursor:pointer;" onclick="editYieldDay('${date}')">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div style="margin-bottom:6px;">
                 <span style="font-weight:bold; color:#2d5a27;">📅 ${date}</span>
-                <span style="font-size:0.8em; color:#aaa;">タップして編集 ›</span>
             </div>
             ${rows}
         </div>`;
