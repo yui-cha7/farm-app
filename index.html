@@ -450,7 +450,7 @@ body {
 </div>
 
 <button class="submit-btn" onclick="saveYield()">保存</button>
-<button onclick="exportAllToSheet()" style="width:100%; margin-top:10px; padding:12px; background:#f0f7f0; color:#2d5a27; border:2px solid #2d5a27; border-radius:8px; font-weight:bold; font-size:0.9em; cursor:pointer;">📤 過去データをスプレッドシートに送る</button>
+
         <!-- 月別コンテナ数サマリー -->
         <div style="background:#f0f7f0; border-radius:12px; padding:14px; margin-top:20px; margin-bottom:16px;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
@@ -1475,42 +1475,7 @@ function changeYieldMonth(offset) {
 }
 window.changeYieldMonth = changeYieldMonth;
 
-async function exportAllToSheet() {
-    if (!confirm("Firebaseの全データをスプレッドシートに送ります。\n既にスプレッドシートにあるデータと重複する場合があります。\n続けますか？")) return;
 
-    const records = JSON.parse(localStorage.getItem('farm_records') || "[]");
-    const yields = JSON.parse(localStorage.getItem('farm_yields') || "[]");
-    let count = 0;
-
-    for (const r of records) {
-        await fetch(SHEET_URL, {
-            method: "POST",
-            body: JSON.stringify({
-                type: "record",
-                id: r.id || Date.now() + Math.random(),
-                date: r.date, field: r.field,
-                work: r.work, time: r.time, note: r.note || ""
-            })
-        });
-        count++;
-    }
-
-    for (const y of yields) {
-        await fetch(SHEET_URL, {
-            method: "POST",
-            body: JSON.stringify({
-                type: "yield",
-                id: y.id || Date.now() + Math.random(),
-                date: y.date, field: y.field,
-                a: y.a, b: y.b
-            })
-        });
-        count++;
-    }
-
-    alert(`完了！${count}件のデータをスプレッドシートに送りました。`);
-}
-window.exportAllToSheet = exportAllToSheet;
 
 function renderYieldSummary() {
     const y = yieldSummaryMonth.getFullYear();
